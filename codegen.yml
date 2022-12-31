@@ -1,0 +1,12 @@
+overwrite: true
+schema: './apollo/typeDefs.ts'
+
+generates:
+  types/type.d.ts:
+    plugins:
+      # TypeScript の型生成する場合に必用なプラグイン
+      - typescript
+      # GraphQL のクエリとスキーマを元に TypeScript の型を自動生成します。
+      - typescript-operations
+      # Resolverの型定義を出力できる
+      - typescript-resolvers
