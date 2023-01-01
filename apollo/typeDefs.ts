@@ -6,9 +6,11 @@ export const typeDefs = gql`
     genreName: String!
     name: String!
     url: String!
+    card: String!
+    lunch: String!
   }
 
   type Query {
-    foods(keyword: String): [Food!]!
+    foods(lat: Float!, lng: Float!, keyword: String): [Food!]!
   }
 `;

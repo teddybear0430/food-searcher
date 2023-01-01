@@ -1,7 +1,7 @@
-import { getFoods } from './foods';
+import { foods } from './foods';
 
 export const resolvers = {
   Query: {
-    foods: getFoods,
+    foods,
   },
 };

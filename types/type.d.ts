@@ -4,6 +4,7 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -16,7 +17,9 @@ export type Scalars = {
 export type Food = {
   __typename?: 'Food';
   address: Scalars['String'];
+  card: Scalars['String'];
   genreName: Scalars['String'];
+  lunch: Scalars['String'];
   name: Scalars['String'];
   url: Scalars['String'];
 };
@@ -29,6 +32,8 @@ export type Query = {
 
 export type QueryFoodsArgs = {
   keyword?: InputMaybe<Scalars['String']>;
+  lat: Scalars['Float'];
+  lng: Scalars['Float'];
 };
 
 
@@ -101,6 +106,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
   Food: ResolverTypeWrapper<Food>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
@@ -109,6 +115,7 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
+  Float: Scalars['Float'];
   Food: Food;
   Query: {};
   String: Scalars['String'];
@@ -116,14 +123,16 @@ export type ResolversParentTypes = {
 
 export type FoodResolvers<ContextType = any, ParentType extends ResolversParentTypes['Food'] = ResolversParentTypes['Food']> = {
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  card?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   genreName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lunch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  foods?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, Partial<QueryFoodsArgs>>;
+  foods?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<QueryFoodsArgs, 'lat' | 'lng'>>;
 };
 
 export type Resolvers<ContextType = any> = {
