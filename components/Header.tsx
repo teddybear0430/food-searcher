@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import AuthModal from '~/components/AuthModal';
 import { useAuthStore } from '~/stores/useAuthStore';
 import { supabase } from '~/utils/supabaseClient';
@@ -10,12 +11,18 @@ const Header: FC = () => {
 
   const [auth, setAuth] = useAuthStore();
 
+  const router = useRouter();
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
+
       if (error) throw Error;
+
+      if (router.asPath === '/mypage') router.push('/');
+
       setAuth({
-        uuid: '',
+        token: '',
         isLoggedin: false,
       });
     } catch (er) {
@@ -55,9 +62,14 @@ const Header: FC = () => {
                 </>
               )}
               {auth.isLoggedin && (
-                <li className="mx-2 cursor-pointer" onClick={signOut}>
-                  ログアウト
-                </li>
+                <>
+                  <li className="mx-2 cursor-pointer">
+                    <Link href="/mypage">マイページ</Link>
+                  </li>
+                  <li className="mx-2 cursor-pointer" onClick={signOut}>
+                    ログアウト
+                  </li>
+                </>
               )}
             </ul>
           )}
