@@ -1,10 +1,11 @@
+import { gql } from 'graphql-request';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import { gql } from 'graphql-request';
-import { client } from '~/utils/graphqlClient';
-import { useGeolocated } from '~/lib/hooks/useGeolocated';
+import ShopItem from '~/components/ShopItem/Item';
+import { useGeolocated } from '~/hooks/useGeolocated';
 import { Query, QueryFoodsArgs } from '~/types/type';
+import { client } from '~/utils/graphqlClient';
 
 const Search: NextPage = () => {
   const router = useRouter();
@@ -34,29 +35,25 @@ const Search: NextPage = () => {
     lng: longitude === null ? 0 : longitude,
   };
   const { isLoading, data, error } = useSWR<Query>(['/api/foods', latitude, longitude, userSetKeyword], () =>
-    client.request(query, params)
+    client().request(query, params)
   );
 
   return (
     <div>
-      {error && <strong>エラーが発生しました</strong>}
       {isLoading && <p>ローディング</p>}
-      {data?.foods.length === 0 && <p>お店が見つかりませんでした</p>}
-      {data && (
+      {error && !isLoading && <strong>エラーが発生しました</strong>}
+      {!error && !isLoading && (
         <>
-          <ul>
-            {data.foods.map((item) => (
-              <li key={item.name}>
-                <h3>
-                  <a href={item.url}>{item.name}</a>
-                </h3>
-                <p>住所: {item.address}</p>
-                <p>カードの利用: {item.card}</p>
-                <p>ランチ: {item.lunch}</p>
-                <p>ジャンル: {item.genreName}</p>
-              </li>
-            ))}
-          </ul>
+          {data && (
+            <>
+              {data.foods.length === 0 && <p>お店が見つかりませんでした</p>}
+              <ul>
+                {data.foods.map((item) => (
+                  <ShopItem key={item.name} item={item} />
+                ))}
+              </ul>
+            </>
+          )}
         </>
       )}
     </div>
