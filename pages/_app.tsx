@@ -7,10 +7,12 @@ import '~/styles/globals.css';
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <AuthenticationProvider>
-      <div className="flex flex-col w-11/12 h-screen mx-auto mt-10 lg:w-7/12">
+      <div className="flex flex-col h-full mx-auto w-11/12 lg:w-7/12">
         <Header />
-        <main className="mt-20">
-          <Component {...pageProps} />
+        <main className="flex-1">
+          <div className="mt-24">
+            <Component {...pageProps} />
+          </div>
         </main>
         <Footer />
       </div>
