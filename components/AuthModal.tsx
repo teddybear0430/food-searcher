@@ -44,8 +44,16 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
 
   const handleSignUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
+      const { data: userData, error: signUpError } = await supabase.auth.signUp({ email, password });
+
+      if (signUpError) throw signUpError;
+
+      // TODO: ユーザー名も登録させる段階でここもAPIを作りたい
+      const { data, error } = await supabase.from('users').insert({
+        uuid: userData.user?.id,
+      });
+
+      if (error || !data) throw new Error('ユーザーデータの作成に失敗しました。');
     } catch (er) {
       console.error(er);
     }
@@ -103,7 +111,7 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
                     id="email"
                     name="email"
                     type="email"
-                    register={register<'email'>('email', {
+                    register={register('email', {
                       required: true,
                       pattern: {
                         value: /^[\w\-._]+@[\w\-._]+\.[A-Za-z]+/,
