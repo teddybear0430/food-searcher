@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import Seo from '~/components/Seo';
 import ShopItem from '~/components/ShopItem/Item';
 import { useGeolocated } from '~/hooks/useGeolocated';
 import { useAuthStore } from '~/stores/useAuthStore';
@@ -44,24 +45,16 @@ const Search: NextPage = () => {
   );
 
   return (
-    <div>
-      {isLoading && <p>ローディング</p>}
-      {error && !isLoading && <strong>エラーが発生しました</strong>}
-      {!error && !isLoading && (
-        <>
-          {data && (
-            <>
-              {data.foods.length === 0 && <p>お店が見つかりませんでした</p>}
-              <ul>
-                {data.foods.map((item) => (
-                  <ShopItem key={item.name} item={item} favoriteShops={data.favoriteShops} />
-                ))}
-              </ul>
-            </>
-          )}
-        </>
+    <>
+      <Seo title="検索結果" />
+      {data && (
+        <ul>
+          {data.foods.map((item) => (
+            <ShopItem key={item.name} item={item} favoriteShops={data.favoriteShops} />
+          ))}
+        </ul>
       )}
-    </div>
+    </>
   );
 };
 
