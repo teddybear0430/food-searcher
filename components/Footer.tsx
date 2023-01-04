@@ -25,9 +25,14 @@ const Footer: React.FC = () => {
           </li>
         ))}
       </ul>
-      <span className="text-sm">
-        {new Date().getFullYear()} {app.name}
-      </span>
+      <p className="text-sm mb-2">
+        <span className="text-sm">
+          {new Date().getFullYear()} {app.name} Powered by{' '}
+          <a href="http://webservice.recruit.co.jp/" className="hover:text-gray-600 hover:underline">
+            ホットペッパー Webサービス
+          </a>
+        </span>
+      </p>
     </footer>
   );
 };
