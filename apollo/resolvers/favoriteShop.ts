@@ -2,14 +2,14 @@ import { MutationResolvers, QueryResolvers } from '~/types/type';
 import { supabase } from '~/utils/supabaseClient';
 
 /**
- * ユーザーがお気に入りに登録した店舗の名前を取得
+ * ユーザーがお気に入りに登録した店舗を全件取得
  * */
-export const favoriteShops: QueryResolvers['favoriteShops'] = async (_, { uuid }) => {
+export const favoriteShops: QueryResolvers['favoriteShops'] = async (_, { id }) => {
   try {
     const { data, error } = await supabase
       .from('favorite_shops')
       .select('name, address, genre, url, lunch, card')
-      .eq('uuid', uuid);
+      .eq('uuid', id);
 
     if (data === null) return [];
 
@@ -68,7 +68,7 @@ export const deleteFavoriteShop: MutationResolvers['deleteFavoriteShop'] = async
 
   try {
     const { name } = args;
-    const { error } = await supabase.from('favorite_shops').delete().eq('uuid', args.uuid).eq('name', name);
+    const { error } = await supabase.from('favorite_shops').delete().eq('uuid', args.id).eq('name', name);
 
     if (error) {
       throw new Error('お気に入りの削除を行う際にエラーが発生しました');

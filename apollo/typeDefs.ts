@@ -12,8 +12,14 @@ export const typeDefs = gql`
 
   type User {
     name: String
+    userId: String
     location: String
     profile: String
+  }
+
+  type UserIdAndUserName {
+    name: String
+    userId: String
   }
 
   type Query {
@@ -21,10 +27,14 @@ export const typeDefs = gql`
     foods(lat: Float!, lng: Float!, keyword: String): [Food!]!
 
     # ユーザー情報の取得
-    findUser(uuid: String!): User
+    # uuidかユーザー作成時に発行されるユーザーIDいずれかで検索できるようにする
+    findUser(id: ID, userId: String): User
 
     # ユーザーがお気に入りに追加した店舗の情報を取得する
-    favoriteShops(uuid: String!): [Food!]!
+    favoriteShops(id: String!): [Food!]!
+
+    # お気に入りに登録したユーザーの情報を取得する
+    usersRegisteredAsFavorites(name: String!): [UserIdAndUserName]!
   }
 
   type MutateResponse {
@@ -34,7 +44,7 @@ export const typeDefs = gql`
 
   type Mutation {
     # ユーザー情報の更新
-    updateUser(uuid: String!, name: String, location: String, profile: String): MutateResponse!
+    updateUser(id: String!, userId: String, name: String, location: String, profile: String): MutateResponse!
 
     # 検索した店舗をお気に入りに登録する
     addFavoriteShop(
@@ -48,6 +58,6 @@ export const typeDefs = gql`
     ): MutateResponse!
 
     # お気に入りに登録した店舗を削除する
-    deleteFavoriteShop(uuid: String!, name: String!): MutateResponse!
+    deleteFavoriteShop(id: String!, name: String!): MutateResponse!
   }
 `;
