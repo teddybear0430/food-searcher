@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import ShopItem from '~/components/ShopItem/Item';
 import { useGeolocated } from '~/hooks/useGeolocated';
-import { Query, QueryFoodsArgs } from '~/types/type';
+import { useAuthStore } from '~/stores/useAuthStore';
+import { Query, QueryFoodsArgs, QueryFavoriteShopsArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
 
 const Search: NextPage = () => {
@@ -12,27 +13,31 @@ const Search: NextPage = () => {
   const userSetKeyword = router.query.keyword as string;
 
   const { position } = useGeolocated();
+  const [auth] = useAuthStore();
 
   const query = gql`
-    query getFoods($lat: Float!, $lng: Float!, $keyword: String) {
+    query getFoods($lat: Float!, $lng: Float!, $keyword: String, $uuid: String!) {
       foods(lat: $lat, lng: $lng, keyword: $keyword) {
         name
         address
-        genreName
+        genre
         url
         card
         lunch
       }
+      favoriteShops(uuid: $uuid) {
+        name
+      }
     }
   `;
   const { latitude, longitude } = position;
-  const params: QueryFoodsArgs = {
-    keyword: userSetKeyword,
+  const params: QueryFoodsArgs & QueryFavoriteShopsArgs = {
+    keyword: userSetKeyword || '',
     // 経度と緯度の初期値にNullを設定している都合上、nullかどうかのエラーハンドリングが必要になる
-    // このコンポーネントはgeolocationAPIが有効になっていないと絶対にレンダリングされることはないので、
-    // nullの場合は0を代入する
+    // このコンポーネントはgeolocationAPIが有効になっていないと絶対にレンダリングされることはないので、nullの場合は0を代入する
     lat: latitude === null ? 0 : latitude,
     lng: longitude === null ? 0 : longitude,
+    uuid: auth.uuid,
   };
   const { isLoading, data, error } = useSWR<Query>(['/api/foods', latitude, longitude, userSetKeyword], () =>
     client().request(query, params)
@@ -49,7 +54,7 @@ const Search: NextPage = () => {
               {data.foods.length === 0 && <p>お店が見つかりませんでした</p>}
               <ul>
                 {data.foods.map((item) => (
-                  <ShopItem key={item.name} item={item} />
+                  <ShopItem key={item.name} item={item} favoriteShops={data.favoriteShops} />
                 ))}
               </ul>
             </>

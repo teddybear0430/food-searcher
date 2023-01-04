@@ -33,7 +33,7 @@ export const foods: QueryResolvers['foods'] = async (_, { keyword, lat, lng }) =
       const { address, genre, name, urls, card, lunch } = item;
       return {
         address,
-        genreName: genre.name,
+        genre: genre.name,
         name,
         url: urls.pc,
         card,

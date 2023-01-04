@@ -1,6 +1,16 @@
 import { MutationResolvers, QueryResolvers } from '~/types/type';
 import { supabase } from '~/utils/supabaseClient';
 
+/**
+ * ユーザーの情報の取得
+ * uuidで取得するのはセキュリティ上まずいので、idとかで取得する
+ * idでユーザーテーブルの情報取得
+ * ユーザーテーブルの中のuuidから、お気に入りに登録した店舗の情報も取得
+ * */
+
+/**
+ * ユーザー情報の取得
+ * */
 const findUser: QueryResolvers['findUser'] = async (_, { uuid }) => {
   try {
     const { data, error } = await supabase.from('users').select('name, location, profile').eq('uuid', uuid).single();
@@ -22,6 +32,9 @@ const findUser: QueryResolvers['findUser'] = async (_, { uuid }) => {
   }
 };
 
+/**
+ * ログインしているユーザー情報の更新
+ * */
 const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => {
   // uuidの取得と存在チェック
   // 認証済みユーザーのuuidが取得できない時点で処理を中断する
@@ -42,9 +55,11 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => 
       .select()
       .eq('uuid', uuid)
       .single();
+
     if (findUserError) {
       throw new Error('ユーザー情報の取得を行う際にエラーが発生しました');
     }
+
     if (!findUserData) {
       return {
         success: false,
@@ -61,6 +76,7 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => 
     if (updateUserError) {
       throw new Error('ユーザー情報の更新を行う際にエラーが発生しました');
     }
+
     return {
       success: true,
       message: 'ユーザー情報の更新に成功しました',

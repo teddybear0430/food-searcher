@@ -14,11 +14,13 @@ const AuthenticationProvider: FC<Props> = ({ children }) => {
   const handleSession = (session: Session | null) => {
     if (session !== null) {
       setAuth({
+        uuid: session.user.id,
         token: session.access_token,
         isLoggedin: true,
       });
     } else {
       setAuth({
+        uuid: '',
         token: '',
         isLoggedin: false,
       });

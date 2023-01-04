@@ -18,7 +18,7 @@ export type Food = {
   __typename?: 'Food';
   address: Scalars['String'];
   card: Scalars['String'];
-  genreName: Scalars['String'];
+  genre: Scalars['String'];
   lunch: Scalars['String'];
   name: Scalars['String'];
   url: Scalars['String'];
@@ -32,7 +32,26 @@ export type MutateResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addFavoriteShop: MutateResponse;
+  deleteFavoriteShop: MutateResponse;
   updateUser: MutateResponse;
+};
+
+
+export type MutationAddFavoriteShopArgs = {
+  address: Scalars['String'];
+  card: Scalars['String'];
+  genre: Scalars['String'];
+  lunch: Scalars['String'];
+  name: Scalars['String'];
+  url: Scalars['String'];
+  uuid: Scalars['String'];
+};
+
+
+export type MutationDeleteFavoriteShopArgs = {
+  name: Scalars['String'];
+  uuid: Scalars['String'];
 };
 
 
@@ -45,8 +64,14 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  favoriteShops: Array<Food>;
   findUser?: Maybe<User>;
   foods: Array<Food>;
+};
+
+
+export type QueryFavoriteShopsArgs = {
+  uuid: Scalars['String'];
 };
 
 
@@ -162,7 +187,7 @@ export type ResolversParentTypes = {
 export type FoodResolvers<ContextType = any, ParentType extends ResolversParentTypes['Food'] = ResolversParentTypes['Food']> = {
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   card?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  genreName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  genre?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lunch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -176,10 +201,13 @@ export type MutateResponseResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationAddFavoriteShopArgs, 'address' | 'card' | 'genre' | 'lunch' | 'name' | 'url' | 'uuid'>>;
+  deleteFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationDeleteFavoriteShopArgs, 'name' | 'uuid'>>;
   updateUser?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'uuid'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  favoriteShops?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<QueryFavoriteShopsArgs, 'uuid'>>;
   findUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryFindUserArgs, 'uuid'>>;
   foods?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<QueryFoodsArgs, 'lat' | 'lng'>>;
 };

@@ -22,6 +22,7 @@ const Header: FC = () => {
       if (router.asPath === '/mypage') router.push('/');
 
       setAuth({
+        uuid: '',
         token: '',
         isLoggedin: false,
       });
