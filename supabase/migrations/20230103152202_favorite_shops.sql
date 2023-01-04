@@ -14,7 +14,6 @@ create table "public"."favorite_shops" (
 
 CREATE UNIQUE INDEX favorite_shops_pkey ON public.favorite_shops USING btree (id);
 
-
 alter table "public"."favorite_shops" add constraint "favorite_shops_pkey" PRIMARY KEY using index "favorite_shops_pkey";
-alter table "public"."favorite_shops" add constraint "favorite_shops_uuid_fkey" FOREIGN KEY (uuid) REFERENCES users(uuid) not valid;
+alter table "public"."favorite_shops" add constraint "favorite_shops_uuid_fkey" FOREIGN KEY (uuid) REFERENCES users(id) not valid;
 alter table "public"."favorite_shops" validate constraint "favorite_shops_uuid_fkey";
