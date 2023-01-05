@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import toast, { Toaster } from 'react-hot-toast';
 import { User } from '@supabase/supabase-js';
 import useSWR from 'swr';
 import Button from '~/components/Button';
@@ -24,19 +25,22 @@ type FormData = {
 };
 
 const MyPage: NextPage<Props> = ({ user }) => {
+  // フォームのバリデーション
   const {
     handleSubmit,
     register,
-    // isDirty: 全体で何かしら変更があったらtrueになる
-    // isValid: 何かしらエラーがあったらtrue (modeがonChange or onBlurの時のみ)
-    formState: { errors, isDirty, isValid },
-    setValue,
+    watch,
+    formState: { isValid, errors },
+    reset,
   } = useForm<FormData>({
     mode: 'onChange',
     criteriaMode: 'all',
-    // 非同期で初期値を設定するときはfalseにする
-    shouldUnregister: false,
   });
+
+  // ユーザーIDのチェック
+  // watchを使わないと、初回レンダリング時にボタンの非活性が解除されなかった
+  const watchUserIdValue = watch(['userId']);
+  const isUserIdEmpty = watchUserIdValue.every((e) => e === '');
 
   const query = gql`
     query ($id: ID!) {
@@ -48,27 +52,26 @@ const MyPage: NextPage<Props> = ({ user }) => {
       }
     }
   `;
-
   const { isLoading, data } = useSWR<Query>(['/api/mypage', user?.id], () =>
     client().request(query, { id: user?.id || '' })
   );
 
   useEffect(() => {
-    if (!data) return;
+    reset({
+      userId: data?.findUserById?.userId,
+      name: data?.findUserById?.name || '',
+      location: data?.findUserById?.location || '',
+      profile: data?.findUserById?.profile || '',
+    });
+  }, [data, reset]);
 
-    // 初期値の設定
-    setValue('userId', data.findUserById?.userId || '');
-    setValue('name', data.findUserById?.name || '');
-    setValue('location', data.findUserById?.location || '');
-    setValue('profile', data.findUserById?.profile || '');
-  }, [data]);
-
+  // 更新処理
   const [auth] = useAuthStore();
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const mutation = gql`
-      mutation updateUser($id: ID!, $name: String, $location: String, $profile: String) {
-        updateUser(id: $id, name: $name, location: $location, profile: $profile) {
+      mutation updateUser($id: ID!, $userId: String, $name: String, $location: String, $profile: String) {
+        updateUser(id: $id, userId: $userId, name: $name, location: $location, profile: $profile) {
           success
           message
         }
@@ -76,12 +79,17 @@ const MyPage: NextPage<Props> = ({ user }) => {
     `;
     const params: MutationUpdateUserArgs = {
       id: user?.id || '',
+      userId: data.userId,
       name: data.name,
       location: data.location,
       profile: data.profile,
     };
     const res = await client(auth.token).request<{ updateUser: MutateResponse }>(mutation, params);
-    return res.updateUser;
+    if (res.updateUser.success) {
+      toast.success('プロフィールの編集に成功しました');
+    } else {
+      toast.error('プロフィールの編集に失敗しました');
+    }
   };
 
   return (
@@ -97,8 +105,12 @@ const MyPage: NextPage<Props> = ({ user }) => {
               id="userId"
               name="userId"
               type="text"
-              register={register('userId', {})}
+              required
+              register={register('userId', {
+                required: true,
+              })}
             />
+            {errors.userId && <p className="text-red-600">ユーザーIDが入力されていません</p>}
             <TextField inputLabel="ユーザー名" id="name" name="name" type="text" register={register('name', {})} />
             <TextField
               inputLabel="居住地"
@@ -107,15 +119,24 @@ const MyPage: NextPage<Props> = ({ user }) => {
               type="text"
               register={register('location', {})}
             />
-            <TextAreaField inputLabel="プロフィール" id="profile" name="profile" register={register('profile', {})} />
+            <TextAreaField
+              inputLabel="プロフィール（200文字以内）"
+              id="profile"
+              name="profile"
+              register={register('profile', {
+                maxLength: 200,
+              })}
+            />
+            {errors.profile && <p className="text-red-600">200文字以内で入力してください</p>}
             <div className="mt-6 flex">
-              <Button theme="primary" type="submit">
+              <Button theme="primary" type="submit" disabled={isUserIdEmpty || !isValid}>
                 保存
               </Button>
             </div>
           </form>
         )}
       </div>
+      <Toaster position="top-right" />
     </>
   );
 };
@@ -144,7 +165,6 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
     return {
       redirect: {
         permanent: false,
-        // リダイレクト先
         destination: '/',
       },
     };

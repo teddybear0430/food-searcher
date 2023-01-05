@@ -11,6 +11,7 @@ const TextField: React.FC<Props> = ({ inputLabel, register, ...rest }) => {
     <div className="my-2">
       <label className="block mb-2 text-sm font-medium text-gray-900" htmlFor={rest.id}>
         {inputLabel}
+        {rest.required && <span className="text-red-600"> (必須)</span>}
       </label>
       <input
         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
