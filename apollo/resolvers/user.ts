@@ -1,5 +1,6 @@
 import { MutationResolvers, QueryResolvers } from '~/types/type';
 import { supabase } from '~/utils/supabaseClient';
+import * as z from 'zod';
 
 /**
  * usersテーブルの主キー(uuid)を使ってユーザー情報を取得
@@ -8,73 +9,83 @@ const findUserById: QueryResolvers['findUserById'] = async (_, { id }) => {
   // 検索画面で認証していない時はnullを返却する
   if (!id) return null;
 
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('user_id, name, location, profile')
-    .eq('id', id)
-    .single();
+  try {
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('user_id, name, location, profile')
+      .eq('id', id)
+      .single();
 
-  if (userError) {
-    throw new Error('ユーザー情報の取得時にエラーが発生しました');
+    if (userError) {
+      throw new Error('ユーザー情報の取得時にエラーが発生しました');
+    }
+
+    const { data: favoriteShops, error: favoriteShopsError } = await supabase
+      .from('favorite_shops')
+      .select('name, address, genre, url, lunch, card')
+      .eq('uuid', id);
+
+    if (favoriteShopsError) {
+      throw new Error('お気に入りに登録した店舗の取得時にエラーが発生しました');
+    }
+
+    const { user_id, name, location, profile } = userData;
+
+    return {
+      id,
+      name,
+      userId: user_id,
+      location,
+      profile,
+      favoriteShops,
+    };
+  } catch (er) {
+    console.error(er);
+    throw er;
   }
-
-  const { data: favoriteShops, error: favoriteShopsError } = await supabase
-    .from('favorite_shops')
-    .select('name, address, genre, url, lunch, card')
-    .eq('uuid', id);
-
-  if (favoriteShopsError) {
-    throw new Error('お気に入りに登録した店舗の取得時にエラーが発生しました');
-  }
-
-  const { user_id, name, location, profile } = userData;
-
-  return {
-    id,
-    name,
-    userId: user_id,
-    location,
-    profile,
-    favoriteShops,
-  };
 };
 
 /**
- * ユーザーIDを使ってユーザー情報を取得
+ * ユーザーID(user_id)を使ってユーザー情報を取得
  * */
 const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId }) => {
   // 存在しないユーザーIDが渡ってきた時はnullを返却する
   if (!userId) return null;
 
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('id, name, location, profile')
-    .eq('user_id', userId)
-    .single();
+  try {
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id, name, location, profile')
+      .eq('user_id', userId)
+      .single();
 
-  if (userError) {
-    throw new Error('ユーザー情報の取得時にエラーが発生しました');
+    if (userError) {
+      throw new Error('ユーザー情報の取得時にエラーが発生しました');
+    }
+
+    const { data: favoriteShops, error: favoriteShopsError } = await supabase
+      .from('favorite_shops')
+      .select('name, address, genre, url, lunch, card, users!inner (id)')
+      .eq('users.user_id', userId);
+
+    if (favoriteShopsError) {
+      throw new Error('お気に入りに登録した店舗の取得時にエラーが発生しました');
+    }
+
+    const { id, name, location, profile } = userData;
+
+    return {
+      id,
+      name,
+      userId,
+      location,
+      profile,
+      favoriteShops,
+    };
+  } catch (er) {
+    console.error(er);
+    throw er;
   }
-
-  const { data: favoriteShops, error: favoriteShopsError } = await supabase
-    .from('favorite_shops')
-    .select('name, address, genre, url, lunch, card, users!inner (id)')
-    .eq('users.user_id', userId);
-
-  if (favoriteShopsError) {
-    throw new Error('お気に入りに登録した店舗の取得時にエラーが発生しました');
-  }
-
-  const { id, name, location, profile } = userData;
-
-  return {
-    id,
-    name,
-    userId,
-    location,
-    profile,
-    favoriteShops,
-  };
 };
 
 /**
@@ -91,9 +102,21 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => 
     };
   }
 
-  const { id, userId, name, location, profile } = args;
+  const schema = z.object({
+    // uuidかつ空ではない
+    id: z.string().uuid().nonempty(),
+    userId: z.string().nonempty(),
+    name: z.string(),
+    location: z.string(),
+    // 200文字以下の文字列
+    profile: z.string().max(200),
+  });
 
   try {
+    // バリデーションチェックの実施
+    schema.parse(args);
+    const { id, userId, name, location, profile } = args;
+
     // 更新対象のユーザー情報の取得と存在チェック
     const { data: findUserData, error: findUserError } = await supabase.from('users').select().eq('id', id).single();
 
@@ -115,7 +138,7 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => 
       .eq('id', id);
 
     if (updateUserError) {
-      throw new Error('ユーザー情報の更新を行う際にエラーが発生しました');
+      throw new Error('ユーザー情報の取得時にエラーが発生しました');
     }
 
     return {
@@ -141,17 +164,15 @@ const usersRegisteredAsFavorites: QueryResolvers['usersRegisteredAsFavorites'] =
       .eq('favorite_shops.name', name);
 
     if (error) {
-      throw new Error('お気に入りに登録したユーザーの登録に失敗しました');
+      throw new Error('ユーザー情報の取得時にエラーが発生しました');
     }
 
     if (!data) return [];
 
-    const result = data.map((e) => ({
+    return data.map((e) => ({
       name: e.name,
       userId: e.user_id,
     }));
-
-    return result;
   } catch (er) {
     console.error(er);
     throw er;

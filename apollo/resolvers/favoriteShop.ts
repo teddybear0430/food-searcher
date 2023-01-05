@@ -1,5 +1,6 @@
 import { MutationResolvers } from '~/types/type';
 import { supabase } from '~/utils/supabaseClient';
+import * as z from 'zod';
 
 /**
  * 検索した店舗をお気に入りに登録する
@@ -13,14 +14,27 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (_, a
     };
   }
 
+  const schema = z.object({
+    id: z.string().uuid().nonempty(),
+    address: z.string(),
+    genre: z.string(),
+    name: z.string(),
+    url: z.string().url(),
+    card: z.string(),
+    lunch: z.string(),
+  });
+
   try {
+    // バリデーションチェックの実施
+    schema.parse(args);
     const { id, name, address, genre, url, lunch, card } = args;
+
     const { error } = await supabase
       .from('favorite_shops')
       .insert({ uuid: id, name, address, genre, url, lunch, card });
 
     if (error) {
-      throw new Error('お気に入りの追加を行う際にエラーが発生しました');
+      throw new Error('お気に入りの追加時にエラーが発生しました');
     }
 
     return {
@@ -45,12 +59,20 @@ export const deleteFavoriteShop: MutationResolvers['deleteFavoriteShop'] = async
     };
   }
 
+  const schema = z.object({
+    id: z.string().uuid().nonempty(),
+    name: z.string().nonempty(),
+  });
+
   try {
+    // バリデーションチェックの実施
+    schema.parse(args);
     const { name } = args;
+
     const { error } = await supabase.from('favorite_shops').delete().eq('uuid', args.id).eq('name', name);
 
     if (error) {
-      throw new Error('お気に入りの削除を行う際にエラーが発生しました');
+      throw new Error('お気に入りの削除時にエラーが発生しました');
     }
 
     return {
