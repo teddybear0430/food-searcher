@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Button from '~/components/Button';
@@ -7,14 +7,13 @@ import TextField from '~/components/TextField';
 import { useGeolocated } from '~/hooks/useGeolocated';
 
 const Home: NextPage = () => {
-  const router = useRouter();
-  const { isAvailable } = useGeolocated();
-
   const [keyword, setKeyword] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.target.value);
   };
+
+  const router = useRouter();
 
   const handleClick = () => {
     router.push({
@@ -23,12 +22,14 @@ const Home: NextPage = () => {
     });
   };
 
+  const { isAvailable } = useGeolocated();
+
   return (
     <>
       <Seo />
       {isAvailable && (
         <section className="my-6">
-          <h1 className="text-3xl font-bold text-center mb-2">現在の位置情報の近くにある飲食店を検索しよう</h1>
+          <h1 className="text-3xl font-bold text-center mb-2">あなたの近くにある飲食店を検索しよう</h1>
           <div className="text-center">
             <Button theme="secondly" onClick={handleClick} disabled={!isAvailable}>
               検索
