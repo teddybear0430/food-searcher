@@ -1,4 +1,5 @@
 import { MutationResolvers } from '~/types/type';
+import { now } from '~/utils/createCurrentTimestamp';
 import { supabase } from '~/utils/supabaseClient';
 import * as z from 'zod';
 
@@ -31,7 +32,7 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (_, a
 
     const { error } = await supabase
       .from('favorite_shops')
-      .insert({ uuid: id, name, address, genre, url, lunch, card });
+      .insert({ uuid: id, name, address, genre, url, lunch, card, created_at: now, updated_at: now });
 
     if (error) {
       throw new Error('お気に入りの追加時にエラーが発生しました');

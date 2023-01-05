@@ -1,4 +1,5 @@
 import { MutationResolvers, QueryResolvers } from '~/types/type';
+import { now } from '~/utils/createCurrentTimestamp';
 import { supabase } from '~/utils/supabaseClient';
 import * as z from 'zod';
 
@@ -134,7 +135,7 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => 
     // ユーザー情報の更新
     const { error: updateUserError } = await supabase
       .from('users')
-      .update({ user_id: userId, name, location, profile })
+      .update({ user_id: userId, name, location, profile, updated_at: now })
       .eq('id', id);
 
     if (updateUserError) {

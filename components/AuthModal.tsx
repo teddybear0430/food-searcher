@@ -1,9 +1,10 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, FC, Dispatch, SetStateAction } from 'react';
+import { FC, Fragment, Dispatch, SetStateAction, useState } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Button from '~/components/Button';
 import TextField from '~/components/TextField';
+import { now } from '~/utils/createCurrentTimestamp';
 import { supabase } from '~/utils/supabaseClient';
 
 type Props = {
@@ -17,18 +18,78 @@ type FormData = {
 };
 
 const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
-  const closeModal = () => setIsOpen(false);
-
+  // バリデーションの設定
   const {
     handleSubmit,
     register,
     // isDirty: 全体で何かしら変更があったらtrueになる
     // isValid: 何かしらエラーがあったらtrue (modeがonChange or onBlurの時のみ)
-    formState: { errors, isDirty, isValid },
+    formState: { isDirty, isValid },
+    reset,
   } = useForm<FormData>({
     mode: 'onChange',
     criteriaMode: 'all',
   });
+
+  const [errorMessage, setErrorMessage] = useState('');
+  const closeModal = () => setIsOpen(false);
+
+  // 登録
+  const handleSignUp = async (email: string, password: string) => {
+    try {
+      const { data: userData, error: signUpError } = await supabase.auth.signUp({ email, password });
+
+      if (signUpError) {
+        setErrorMessage(
+          'アカウントの作成に失敗しました。\nメールアドレスとパスワードが既に使用されている可能性があるので、再度ご確認ください。'
+        );
+        return;
+      }
+
+      const { error } = await supabase.from('users').insert({
+        id: userData.user?.id,
+        // ユーザーIDの初期値としてランダム文字列を生成する
+        user_id: Math.random().toString(32).substring(2),
+        created_at: now,
+        updated_at: now,
+      });
+
+      if (error) {
+        setErrorMessage('アカウントの作成に失敗しました。');
+        return;
+      }
+
+      reset({
+        email: '',
+        password: '',
+      });
+
+      closeModal();
+    } catch (er) {
+      console.error(er);
+    }
+  };
+
+  // ログイン
+  const handleSignIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setErrorMessage(`ログインに失敗しました。\nメールアドレスとパスワードを確認してください。`);
+        return;
+      }
+
+      reset({
+        email: '',
+        password: '',
+      });
+
+      closeModal();
+    } catch (er) {
+      console.error(er);
+    }
+  };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const { email, password } = data;
@@ -37,36 +98,6 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
       await handleSignUp(email, password);
     } else {
       await handleSignIn(email, password);
-    }
-
-    closeModal();
-  };
-
-  const handleSignUp = async (email: string, password: string) => {
-    try {
-      const { data: userData, error: signUpError } = await supabase.auth.signUp({ email, password });
-
-      if (signUpError) throw signUpError;
-
-      // TODO: ユーザー名も登録させる段階でここもAPIを作りたい
-      const { data, error } = await supabase.from('users').insert({
-        id: userData.user?.id,
-        // ユーザーIDの初期値としてランダム文字列を生成する
-        user_id: Math.random().toString(32).substring(2),
-      });
-
-      if (error || !data) throw new Error('ユーザーデータの作成に失敗しました。');
-    } catch (er) {
-      console.error(er);
-    }
-  };
-
-  const handleSignIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-    } catch (er) {
-      console.error(er);
     }
   };
 
@@ -106,6 +137,12 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
                     {type === 'signin' && <>ログイン</>}
                   </Dialog.Title>
                   <Dialog.Description as="p">メールアドレスとパスワードを入力してください。</Dialog.Description>
+                  {type === 'signup' && (
+                    <p>
+                      パスワードは<span className="text-red-600 font-bold">半角全角英数字全てを含む10文字以上</span>
+                      になるように設定してください。
+                    </p>
+                  )}
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <TextField
@@ -130,16 +167,15 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
                       required: true,
                       pattern: {
                         value: /^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\d)[a-zA-Z\d]{10,}$/,
-                        message: '半角全角英数字のいずれかを含み、かつ10文字以上',
+                        message: '半角全角英数字のいずれかを含む10文字以上',
                       },
                     })}
                   />
-                  {type === 'signup' && (
-                    <p className="mt-2 text-sm">
-                      パスワードは、
-                      <span className="text-red-400 font-bold">半角全角英数字を含む10文字以上</span>
-                      になるように設定してください。
-                    </p>
+                  {errorMessage && (
+                    <p
+                      className="mt-2 text-sm text-red-600 font-bold"
+                      dangerouslySetInnerHTML={{ __html: errorMessage.replace(/\n/g, '<br />') }}
+                    />
                   )}
                   <div className="mt-6 text-center">
                     {type === 'signup' && (
