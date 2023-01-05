@@ -1,28 +1,5 @@
-import { MutationResolvers, QueryResolvers } from '~/types/type';
+import { MutationResolvers } from '~/types/type';
 import { supabase } from '~/utils/supabaseClient';
-
-/**
- * ユーザーがお気に入りに登録した店舗を全件取得
- * */
-export const favoriteShops: QueryResolvers['favoriteShops'] = async (_, { id }) => {
-  try {
-    const { data, error } = await supabase
-      .from('favorite_shops')
-      .select('name, address, genre, url, lunch, card')
-      .eq('uuid', id);
-
-    if (data === null) return [];
-
-    if (error) {
-      throw new Error('お気に入りに登録した店舗の取得を行う際にエラーが発生しました');
-    }
-
-    return data;
-  } catch (er) {
-    console.error(er);
-    throw er;
-  }
-};
 
 /**
  * 検索した店舗をお気に入りに登録する
@@ -37,8 +14,10 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (_, a
   }
 
   try {
-    const { uuid, name, address, genre, url, lunch, card } = args;
-    const { error } = await supabase.from('favorite_shops').insert({ uuid, name, address, genre, url, lunch, card });
+    const { id, name, address, genre, url, lunch, card } = args;
+    const { error } = await supabase
+      .from('favorite_shops')
+      .insert({ uuid: id, name, address, genre, url, lunch, card });
 
     if (error) {
       throw new Error('お気に入りの追加を行う際にエラーが発生しました');

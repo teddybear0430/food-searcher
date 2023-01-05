@@ -2,6 +2,7 @@ import { gql } from 'graphql-tag';
 
 export const typeDefs = gql`
   type Food {
+    uuid: String
     address: String!
     genre: String!
     name: String!
@@ -10,11 +11,28 @@ export const typeDefs = gql`
     lunch: String!
   }
 
-  type User {
+  interface User {
+    id: ID!
     name: String
-    userId: String
+    userId: String!
     location: String
     profile: String
+  }
+  type UserByIdResult implements User {
+    id: ID!
+    name: String
+    userId: String!
+    location: String
+    profile: String
+    favoriteShops(id: ID!): [Food!]!
+  }
+  type UserByUserIdResult implements User {
+    id: ID!
+    name: String
+    userId: String!
+    location: String
+    profile: String
+    favoriteShops(userId: String!): [Food!]!
   }
 
   type UserIdAndUserName {
@@ -27,11 +45,8 @@ export const typeDefs = gql`
     foods(lat: Float!, lng: Float!, keyword: String): [Food!]!
 
     # ユーザー情報の取得
-    # uuidかユーザー作成時に発行されるユーザーIDいずれかで検索できるようにする
-    findUser(id: ID, userId: String): User
-
-    # ユーザーがお気に入りに追加した店舗の情報を取得する
-    favoriteShops(id: String!): [Food!]!
+    findUserById(id: ID!): UserByIdResult
+    findUserByUserId(userId: String!): UserByUserIdResult
 
     # お気に入りに登録したユーザーの情報を取得する
     usersRegisteredAsFavorites(name: String!): [UserIdAndUserName]!
@@ -44,11 +59,11 @@ export const typeDefs = gql`
 
   type Mutation {
     # ユーザー情報の更新
-    updateUser(id: String!, userId: String, name: String, location: String, profile: String): MutateResponse!
+    updateUser(id: ID!, userId: String, name: String, location: String, profile: String): MutateResponse!
 
     # 検索した店舗をお気に入りに登録する
     addFavoriteShop(
-      uuid: String!
+      id: ID!
       address: String!
       genre: String!
       name: String!
@@ -58,6 +73,6 @@ export const typeDefs = gql`
     ): MutateResponse!
 
     # お気に入りに登録した店舗を削除する
-    deleteFavoriteShop(id: String!, name: String!): MutateResponse!
+    deleteFavoriteShop(id: ID!, name: String!): MutateResponse!
   }
 `;

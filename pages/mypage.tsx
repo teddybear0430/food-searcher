@@ -17,6 +17,7 @@ type Props = {
   user: User | null;
 };
 type FormData = {
+  userId: string;
   name: string;
   location: string;
   profile: string;
@@ -38,40 +39,43 @@ const MyPage: NextPage<Props> = ({ user }) => {
   });
 
   const query = gql`
-    query findUser($uuid: String!) {
-      findUser(uuid: $uuid) {
+    query ($id: ID!) {
+      findUserById(id: $id) {
         name
+        userId
         location
         profile
       }
     }
   `;
 
-  const { isLoading, data, error } = useSWR<Query>(['/api/mypage', user?.id], () =>
-    client().request(query, { uuid: user?.id || '' })
+  const { isLoading, data } = useSWR<Query>(['/api/mypage', user?.id], () =>
+    client().request(query, { id: user?.id || '' })
   );
 
   useEffect(() => {
     if (!data) return;
 
     // 初期値の設定
-    setValue('name', data.findUser?.name || '');
-    setValue('location', data.findUser?.location || '');
-    setValue('profile', data.findUser?.profile || '');
+    setValue('userId', data.findUserById?.userId || '');
+    setValue('name', data.findUserById?.name || '');
+    setValue('location', data.findUserById?.location || '');
+    setValue('profile', data.findUserById?.profile || '');
   }, [data]);
 
   const [auth] = useAuthStore();
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const mutation = gql`
-      mutation updateUser($uuid: String!, $name: String, $location: String, $profile: String) {
-        updateUser(uuid: $uuid, name: $name, location: $location, profile: $profile) {
+      mutation updateUser($id: ID!, $name: String, $location: String, $profile: String) {
+        updateUser(id: $id, name: $name, location: $location, profile: $profile) {
           success
           message
         }
       }
     `;
     const params: MutationUpdateUserArgs = {
-      uuid: user?.id || '',
+      id: user?.id || '',
       name: data.name,
       location: data.location,
       profile: data.profile,
@@ -88,6 +92,13 @@ const MyPage: NextPage<Props> = ({ user }) => {
         {user && <p>メールアドレス: {user.email}</p>}
         {!isLoading && (
           <form onSubmit={handleSubmit(onSubmit)}>
+            <TextField
+              inputLabel="ユーザーId"
+              id="userId"
+              name="userId"
+              type="text"
+              register={register('userId', {})}
+            />
             <TextField inputLabel="ユーザー名" id="name" name="name" type="text" register={register('name', {})} />
             <TextField
               inputLabel="居住地"

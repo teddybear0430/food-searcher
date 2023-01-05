@@ -15,7 +15,7 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
 
     const mutation = gql`
       mutation (
-        $uuid: String!
+        $id: ID!
         $address: String!
         $genre: String!
         $name: String!
@@ -23,15 +23,7 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
         $card: String!
         $lunch: String!
       ) {
-        addFavoriteShop(
-          uuid: $uuid
-          address: $address
-          genre: $genre
-          name: $name
-          url: $url
-          card: $card
-          lunch: $lunch
-        ) {
+        addFavoriteShop(id: $id, address: $address, genre: $genre, name: $name, url: $url, card: $card, lunch: $lunch) {
           success
           message
         }
@@ -46,7 +38,7 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
     if (error) return;
 
     const params: MutationAddFavoriteShopArgs = {
-      uuid: data.user.id,
+      id: data.user.id,
       name,
       address,
       genre,
@@ -64,8 +56,8 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
     setIsFavorite(false);
 
     const mutation = gql`
-      mutation ($uuid: String!, $name: String!) {
-        deleteFavoriteShop(uuid: $uuid, name: $name) {
+      mutation ($id: ID!, $name: String!) {
+        deleteFavoriteShop(id: $id, name: $name) {
           success
           message
         }
@@ -77,7 +69,7 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
     if (error) return;
 
     const params: MutationDeleteFavoriteShopArgs = {
-      uuid: data.user.id,
+      id: data.user.id,
       name: item.name,
     };
 

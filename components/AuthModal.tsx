@@ -50,7 +50,9 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
 
       // TODO: ユーザー名も登録させる段階でここもAPIを作りたい
       const { data, error } = await supabase.from('users').insert({
-        uuid: userData.user?.id,
+        id: userData.user?.id,
+        // ユーザーIDの初期値としてランダム文字列を生成する
+        user_id: Math.random().toString(32).substring(2),
       });
 
       if (error || !data) throw new Error('ユーザーデータの作成に失敗しました。');

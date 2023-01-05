@@ -22,6 +22,7 @@ export type Food = {
   lunch: Scalars['String'];
   name: Scalars['String'];
   url: Scalars['String'];
+  uuid?: Maybe<Scalars['String']>;
 };
 
 export type MutateResponse = {
@@ -42,21 +43,21 @@ export type MutationAddFavoriteShopArgs = {
   address: Scalars['String'];
   card: Scalars['String'];
   genre: Scalars['String'];
+  id: Scalars['ID'];
   lunch: Scalars['String'];
   name: Scalars['String'];
   url: Scalars['String'];
-  uuid: Scalars['String'];
 };
 
 
 export type MutationDeleteFavoriteShopArgs = {
-  id: Scalars['String'];
+  id: Scalars['ID'];
   name: Scalars['String'];
 };
 
 
 export type MutationUpdateUserArgs = {
-  id: Scalars['String'];
+  id: Scalars['ID'];
   location?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   profile?: InputMaybe<Scalars['String']>;
@@ -65,21 +66,20 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  favoriteShops: Array<Food>;
-  findUser?: Maybe<User>;
+  findUserById?: Maybe<UserByIdResult>;
+  findUserByUserId?: Maybe<UserByUserIdResult>;
   foods: Array<Food>;
   usersRegisteredAsFavorites: Array<Maybe<UserIdAndUserName>>;
 };
 
 
-export type QueryFavoriteShopsArgs = {
-  id: Scalars['String'];
+export type QueryFindUserByIdArgs = {
+  id: Scalars['ID'];
 };
 
 
-export type QueryFindUserArgs = {
-  id?: InputMaybe<Scalars['ID']>;
-  userId?: InputMaybe<Scalars['String']>;
+export type QueryFindUserByUserIdArgs = {
+  userId: Scalars['String'];
 };
 
 
@@ -95,11 +95,41 @@ export type QueryUsersRegisteredAsFavoritesArgs = {
 };
 
 export type User = {
-  __typename?: 'User';
+  id: Scalars['ID'];
   location?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   profile?: Maybe<Scalars['String']>;
-  userId?: Maybe<Scalars['String']>;
+  userId: Scalars['String'];
+};
+
+export type UserByIdResult = User & {
+  __typename?: 'UserByIdResult';
+  favoriteShops: Array<Food>;
+  id: Scalars['ID'];
+  location?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  profile?: Maybe<Scalars['String']>;
+  userId: Scalars['String'];
+};
+
+
+export type UserByIdResultFavoriteShopsArgs = {
+  id: Scalars['ID'];
+};
+
+export type UserByUserIdResult = User & {
+  __typename?: 'UserByUserIdResult';
+  favoriteShops: Array<Food>;
+  id: Scalars['ID'];
+  location?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  profile?: Maybe<Scalars['String']>;
+  userId: Scalars['String'];
+};
+
+
+export type UserByUserIdResultFavoriteShopsArgs = {
+  userId: Scalars['String'];
 };
 
 export type UserIdAndUserName = {
@@ -185,7 +215,9 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
-  User: ResolverTypeWrapper<User>;
+  User: ResolversTypes['UserByIdResult'] | ResolversTypes['UserByUserIdResult'];
+  UserByIdResult: ResolverTypeWrapper<UserByIdResult>;
+  UserByUserIdResult: ResolverTypeWrapper<UserByUserIdResult>;
   UserIdAndUserName: ResolverTypeWrapper<UserIdAndUserName>;
 };
 
@@ -199,7 +231,9 @@ export type ResolversParentTypes = {
   Mutation: {};
   Query: {};
   String: Scalars['String'];
-  User: User;
+  User: ResolversParentTypes['UserByIdResult'] | ResolversParentTypes['UserByUserIdResult'];
+  UserByIdResult: UserByIdResult;
+  UserByUserIdResult: UserByUserIdResult;
   UserIdAndUserName: UserIdAndUserName;
 };
 
@@ -210,6 +244,7 @@ export type FoodResolvers<ContextType = any, ParentType extends ResolversParentT
   lunch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uuid?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -220,23 +255,44 @@ export type MutateResponseResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationAddFavoriteShopArgs, 'address' | 'card' | 'genre' | 'lunch' | 'name' | 'url' | 'uuid'>>;
+  addFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationAddFavoriteShopArgs, 'address' | 'card' | 'genre' | 'id' | 'lunch' | 'name' | 'url'>>;
   deleteFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationDeleteFavoriteShopArgs, 'id' | 'name'>>;
   updateUser?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  favoriteShops?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<QueryFavoriteShopsArgs, 'id'>>;
-  findUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryFindUserArgs>>;
+  findUserById?: Resolver<Maybe<ResolversTypes['UserByIdResult']>, ParentType, ContextType, RequireFields<QueryFindUserByIdArgs, 'id'>>;
+  findUserByUserId?: Resolver<Maybe<ResolversTypes['UserByUserIdResult']>, ParentType, ContextType, RequireFields<QueryFindUserByUserIdArgs, 'userId'>>;
   foods?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<QueryFoodsArgs, 'lat' | 'lng'>>;
   usersRegisteredAsFavorites?: Resolver<Array<Maybe<ResolversTypes['UserIdAndUserName']>>, ParentType, ContextType, RequireFields<QueryUsersRegisteredAsFavoritesArgs, 'name'>>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  __resolveType: TypeResolveFn<'UserByIdResult' | 'UserByUserIdResult', ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   profile?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  userId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type UserByIdResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserByIdResult'] = ResolversParentTypes['UserByIdResult']> = {
+  favoriteShops?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<UserByIdResultFavoriteShopsArgs, 'id'>>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  profile?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserByUserIdResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserByUserIdResult'] = ResolversParentTypes['UserByUserIdResult']> = {
+  favoriteShops?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<UserByUserIdResultFavoriteShopsArgs, 'userId'>>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  profile?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -252,6 +308,8 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserByIdResult?: UserByIdResultResolvers<ContextType>;
+  UserByUserIdResult?: UserByUserIdResultResolvers<ContextType>;
   UserIdAndUserName?: UserIdAndUserNameResolvers<ContextType>;
 };
 

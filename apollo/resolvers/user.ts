@@ -4,67 +4,77 @@ import { supabase } from '~/utils/supabaseClient';
 /**
  * usersテーブルの主キー(uuid)を使ってユーザー情報を取得
  * */
-const findUserById = async (id: string) => {
-  const { data, error } = await supabase.from('users').select('user_id, name, location, profile').eq('id', id).single();
-  if (error) {
-    throw new Error('ユーザー情報の取得を行う際にエラーが発生しました');
+const findUserById: QueryResolvers['findUserById'] = async (_, { id }) => {
+  // 検索画面で認証していない時はnullを返却する
+  if (!id) return null;
+
+  const { data: userData, error: userError } = await supabase
+    .from('users')
+    .select('user_id, name, location, profile')
+    .eq('id', id)
+    .single();
+
+  if (userError) {
+    throw new Error('ユーザー情報の取得時にエラーが発生しました');
   }
 
-  const { user_id, name, location, profile } = data;
+  const { data: favoriteShops, error: favoriteShopsError } = await supabase
+    .from('favorite_shops')
+    .select('name, address, genre, url, lunch, card')
+    .eq('uuid', id);
+
+  if (favoriteShopsError) {
+    throw new Error('お気に入りに登録した店舗の取得時にエラーが発生しました');
+  }
+
+  const { user_id, name, location, profile } = userData;
 
   return {
-    userId: user_id,
+    id,
     name,
+    userId: user_id,
     location,
     profile,
+    favoriteShops,
   };
 };
 
 /**
  * ユーザーIDを使ってユーザー情報を取得
  * */
-const findUserByUserId = async (userId: string) => {
-  const { data, error } = await supabase
+const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId }) => {
+  // 存在しないユーザーIDが渡ってきた時はnullを返却する
+  if (!userId) return null;
+
+  const { data: userData, error: userError } = await supabase
     .from('users')
-    .select('user_id, name, location, profile')
+    .select('id, name, location, profile')
     .eq('user_id', userId)
     .single();
 
-  if (error) {
-    throw new Error('ユーザー情報の取得を行う際にエラーが発生しました');
+  if (userError) {
+    throw new Error('ユーザー情報の取得時にエラーが発生しました');
   }
 
-  const { user_id, name, location, profile } = data;
+  const { data: favoriteShops, error: favoriteShopsError } = await supabase
+    .from('favorite_shops')
+    .select('name, address, genre, url, lunch, card, users!inner (id)')
+    .eq('users.user_id', userId);
+
+  if (favoriteShopsError) {
+    throw new Error('お気に入りに登録した店舗の取得時にエラーが発生しました');
+  }
+
+  const { id, name, location, profile } = userData;
 
   return {
-    userId: user_id,
+    id,
     name,
+    userId,
     location,
     profile,
+    favoriteShops,
   };
-};
-
-/**
- * ユーザー情報の取得
- * or検索ができる関数を使用すると、id(uuid)が空の時にsupabaseで例外として処理されてしまったので、
- * 検索に使用する値によって処理を分割した
- *
- * https://www.supabase.jp/docs/reference/javascript/or
- * */
-const findUser: QueryResolvers['findUser'] = async (_, { id, userId }) => {
-  try {
-    if (id) {
-      return findUserById(id);
-    } else if (userId) {
-      return findUserByUserId(userId);
-    } else {
-      // どちらも値がセットされていない時は空のオブジェクトを返却する
-      return {};
-    }
-  } catch (er) {
-    console.error(er);
-    throw er;
-  }
 };
 
 /**
@@ -148,4 +158,4 @@ const usersRegisteredAsFavorites: QueryResolvers['usersRegisteredAsFavorites'] =
   }
 };
 
-export { findUser, updateUser, usersRegisteredAsFavorites };
+export { findUserById, findUserByUserId, updateUser, usersRegisteredAsFavorites };

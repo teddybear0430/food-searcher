@@ -19,7 +19,7 @@ const Home: NextPage = () => {
   const handleClick = () => {
     router.push({
       pathname: '/search',
-      query: { keyword },
+      ...(keyword ? { query: { keyword } } : {}),
     });
   };
 
