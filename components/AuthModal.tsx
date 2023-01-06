@@ -172,10 +172,7 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
                     })}
                   />
                   {errorMessage && (
-                    <p
-                      className="mt-2 text-sm text-red-600 font-bold"
-                      dangerouslySetInnerHTML={{ __html: errorMessage.replace(/\n/g, '<br />') }}
-                    />
+                    <p className="mt-2 text-sm text-red-600 font-bold whitespace-pre-wrap">{errorMessage}</p>
                   )}
                   <div className="mt-6 text-center">
                     {type === 'signup' && (
