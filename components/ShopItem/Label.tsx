@@ -6,7 +6,7 @@ type Props = {
 };
 
 const Label: FC<Props> = ({ children, bg = 'bg-red-400' }) => {
-  return <span className={`${bg} p-1 text-sm text-white`}>{children}</span>;
+  return <span className={`${bg} px-1 text-white inline-block`}>{children}</span>;
 };
 
 export default Label;
