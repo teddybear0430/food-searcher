@@ -90,12 +90,12 @@ const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId 
 };
 
 /**
- * ログインしているユーザー情報の更新
+ * 認証用ではないパブリックの方のユーザーテーブルにデータを作成する
  * */
-const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { currentUserId: string }) => {
+const createUser: MutationResolvers['createUser'] = async (_, { id }, context: { currentUserId: string }) => {
   // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid && authenticatedUuid === args.id) {
+  if (!authenticatedUuid || authenticatedUuid !== id) {
     return {
       success: false,
       message: 'ユーザー情報の更新は許可されていません',
@@ -104,6 +104,49 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { c
 
   const schema = z.object({
     // uuidかつ空ではない
+    id: z.string().uuid().nonempty(),
+  });
+
+  try {
+    // バリデーションチェックの実施
+    schema.parse({ id });
+
+    const { error } = await supabase.from('users').insert({
+      id,
+      // ユーザーIDの初期値としてランダム文字列を生成する
+      user_id: Math.random().toString(32).substring(2),
+      created_at: now,
+      updated_at: now,
+    });
+
+    if (error) {
+      throw new Error('ユーザー情報の作成時にエラーが発生しました');
+    }
+
+    return {
+      success: true,
+      message: 'ユーザー情報の作成に成功しました',
+    };
+  } catch (er) {
+    console.error(er);
+    throw er;
+  }
+};
+
+/**
+ * ログインしているユーザー情報の更新
+ * */
+const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { currentUserId: string }) => {
+  // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
+  const authenticatedUuid = context.currentUserId;
+  if (!authenticatedUuid || authenticatedUuid !== args.id) {
+    return {
+      success: false,
+      message: 'ユーザー情報の更新は許可されていません',
+    };
+  }
+
+  const schema = z.object({
     id: z.string().uuid().nonempty(),
     userId: z.string().nonempty(),
     name: z.string(),
@@ -138,7 +181,7 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { c
       .eq('id', id);
 
     if (updateUserError) {
-      throw new Error('ユーザー情報の取得時にエラーが発生しました');
+      throw new Error('ユーザー情報の更新時にエラーが発生しました');
     }
 
     return {
@@ -179,4 +222,4 @@ const usersRegisteredAsFavorites: QueryResolvers['usersRegisteredAsFavorites'] =
   }
 };
 
-export { findUserById, findUserByUserId, updateUser, usersRegisteredAsFavorites };
+export { findUserById, findUserByUserId, createUser, updateUser, usersRegisteredAsFavorites };

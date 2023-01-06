@@ -1,10 +1,13 @@
+import { gql } from 'graphql-request';
 import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, Dispatch, SetStateAction, useState } from 'react';
-import { AiOutlineClose } from 'react-icons/ai';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { AiOutlineClose } from 'react-icons/ai';
 import Button from '~/components/Button';
 import TextField from '~/components/TextField';
-import { now } from '~/utils/createCurrentTimestamp';
+import { useAuthStore } from '~/stores/useAuthStore';
+import { MutateResponse, MutationCreateUserArgs } from '~/types/type';
+import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
 
 type Props = {
@@ -33,6 +36,7 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
 
   const [errorMessage, setErrorMessage] = useState('');
   const closeModal = () => setIsOpen(false);
+  const [_, setAuth] = useAuthStore();
 
   // 登録
   const handleSignUp = async (email: string, password: string) => {
@@ -46,15 +50,29 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
         return;
       }
 
-      const { error } = await supabase.from('users').insert({
-        id: userData.user?.id,
-        // ユーザーIDの初期値としてランダム文字列を生成する
-        user_id: Math.random().toString(32).substring(2),
-        created_at: now,
-        updated_at: now,
-      });
+      // TODO
+      // ここで失敗したら、既に作成したユーザーを削除するみたいなトランザクション処理的なことをやりたい
+      const mutation = gql`
+        mutation ($id: ID!) {
+          createUser(id: $id) {
+            success
+            message
+          }
+        }
+      `;
+      const params: MutationCreateUserArgs = {
+        id: userData.user?.id || '',
+      };
+      const res = await client(userData.session?.access_token).request<{ createUser: MutateResponse }>(
+        mutation,
+        params
+      );
 
-      if (error) {
+      if (!res.createUser.success) {
+        setAuth({
+          uuid: '',
+          isLoggedin: false,
+        });
         setErrorMessage('アカウントの作成に失敗しました。');
         return;
       }
