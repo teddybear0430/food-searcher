@@ -4,7 +4,7 @@ import { QueryResolvers } from '~/types/type';
 export const foods: QueryResolvers['foods'] = async (_, { keyword, lat, lng }) => {
   const API_TOKEN = process.env.API_TOKEN;
 
-  let API_BASE_URL = `https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=${API_TOKEN}&format=json&lat=${lat}&lng=${lng}&count=20`;
+  let API_BASE_URL = `https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=${API_TOKEN}&format=json&lat=${lat}&lng=${lng}&count=50`;
   if (keyword) {
     API_BASE_URL = `${API_BASE_URL}&keyword=${keyword}`;
   }

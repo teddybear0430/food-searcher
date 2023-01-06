@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
+import Link from 'next/link';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import toast, { Toaster } from 'react-hot-toast';
@@ -95,10 +96,15 @@ const MyPage: NextPage<Props> = ({ user }) => {
   return (
     <>
       <Seo title="マイページ" />
-      <div>
-        <h1 className="text-2xl">マイページ</h1>
-        {user && <p>メールアドレス: {user.email}</p>}
-        {!isLoading && (
+      <h1 className="text-2xl">マイページ</h1>
+      {!isLoading && (
+        <>
+          {data && (
+            <Link href={`/user/${data.findUserById?.userId}`} className="text-blue-700 hover:underline">
+              {data.findUserById?.name ? data.findUserById?.name : data.findUserById?.userId}
+            </Link>
+          )}
+          {user && <p>メールアドレス: {user.email}</p>}
           <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
               inputLabel="ユーザーId"
@@ -111,16 +117,28 @@ const MyPage: NextPage<Props> = ({ user }) => {
               })}
             />
             {errors.userId && <p className="text-red-600">ユーザーIDが入力されていません</p>}
-            <TextField inputLabel="ユーザー名" id="name" name="name" type="text" register={register('name', {})} />
+            <TextField
+              inputLabel="ユーザー名"
+              id="name"
+              name="name"
+              type="text"
+              register={register('name', {
+                maxLength: 30,
+              })}
+            />
+            {errors.name && <p className="text-red-600">30文字以内で入力してください</p>}
             <TextField
               inputLabel="居住地"
               id="location"
               name="location"
               type="text"
-              register={register('location', {})}
+              register={register('location', {
+                maxLength: 30,
+              })}
             />
+            {errors.location && <p className="text-red-600">30文字以内で入力してください</p>}
             <TextAreaField
-              inputLabel="プロフィール（200文字以内）"
+              inputLabel="プロフィール"
               id="profile"
               name="profile"
               register={register('profile', {
@@ -134,8 +152,8 @@ const MyPage: NextPage<Props> = ({ user }) => {
               </Button>
             </div>
           </form>
-        )}
-      </div>
+        </>
+      )}
       <Toaster position="top-right" />
     </>
   );

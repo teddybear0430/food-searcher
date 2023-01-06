@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
-import useSWR from 'swr';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
+import useSWR from 'swr';
 import Seo from '~/components/Seo';
 import { Query, QueryUsersRegisteredAsFavoritesArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
@@ -27,27 +27,25 @@ const UserPage: NextPage<Props> = ({ name }) => {
   return (
     <>
       <Seo title={`${name}`} />
-      <div>
-        <h1 className="text-2xl">{name}</h1>
-        <h2>お気に入りに登録したユーザー</h2>
-        {data?.usersRegisteredAsFavorites && (
-          <>
-            {data.usersRegisteredAsFavorites.length == 0 ? (
-              <p>お気に入りに登録しているユーザーはいません</p>
-            ) : (
-              <ul>
-                {data?.usersRegisteredAsFavorites.map((item) => (
-                  <li key={item?.userId}>
-                    <Link href={`/user/${item?.userId}`} className="text-blue-700 hover:underline">
-                      {item?.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
-        )}
-      </div>
+      <h1 className="text-2xl">{name}</h1>
+      <h2 className="text-xl mb-2">お気に入りに登録したユーザー</h2>
+      {data?.usersRegisteredAsFavorites && (
+        <>
+          {data.usersRegisteredAsFavorites.length == 0 ? (
+            <p>お気に入りに登録しているユーザーはいません</p>
+          ) : (
+            <ul>
+              {data?.usersRegisteredAsFavorites.map((item) => (
+                <li key={item?.userId}>
+                  <Link href={`/user/${item?.userId}`} className="text-blue-700 hover:underline">
+                    {item?.name ? item.name : item?.userId}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
     </>
   );
 };

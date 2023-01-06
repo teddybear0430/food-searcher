@@ -1,6 +1,6 @@
 import { ReactChild, ComponentProps, FC } from 'react';
 
-type Theme = 'primary' | 'secondly' | 'thirdaly';
+type Theme = 'primary' | 'secondly';
 type Props = {
   children: ReactChild;
   theme?: Theme;
@@ -15,7 +15,6 @@ const Button: FC<Props> = ({ children, theme = 'primary', ...rest }) => {
   } else if (theme === 'secondly') {
     buttonClassNames =
       'bg-gradient-to-br from-purple-600 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300';
-  } else if (theme === 'thirdaly') {
   }
 
   return (

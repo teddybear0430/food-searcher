@@ -56,13 +56,6 @@ const Search: NextPage = () => {
       <Seo title="検索結果" />
       {position.lat !== null && position.lng !== null ? (
         <>
-          {error && !data && (
-            <p className="font-bold text-red-600">
-              エラーが発生しました。
-              <br />
-              ブラウザをリロードして再度お試しください。
-            </p>
-          )}
           {isLoading ? (
             <div className="flex flex-col items-center">
               <p className="font-bold text-blue-600 text-center pb-4">検索中...</p>
@@ -70,6 +63,13 @@ const Search: NextPage = () => {
             </div>
           ) : (
             <>
+              {error && !data && (
+                <p className="font-bold text-red-600">
+                  エラーが発生しました。
+                  <br />
+                  ブラウザをリロードして再度お試しください。
+                </p>
+              )}
               {data?.foods && (
                 <>
                   {data.foods.length !== 0 && (

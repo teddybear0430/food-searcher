@@ -6,7 +6,7 @@ const Terms: NextPage = () => {
     <>
       <Seo title="利用規約" />
       <div className="leading-2">
-        <h1 className="text-2xl">利用規約</h1>
+        <h1 className="text-2xl mb-2">利用規約</h1>
         <p>
           この利用規約（以下，「本規約」といいます。）は，今日なに食べて生きてこが提供するサービス（以下，「本サービス」といいます。）の利用条件を定めるものです。
           <br />

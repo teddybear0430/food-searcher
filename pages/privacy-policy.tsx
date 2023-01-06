@@ -5,7 +5,7 @@ const PrivacyPolicy: NextPage = () => {
   return (
     <>
       <Seo title="プライバシーポリシー" />
-      <h1 className="text-2xl">プライバシーポリシー</h1>
+      <h1 className="text-2xl mb-2">プライバシーポリシー</h1>
       <div className="leading-2">
         <p>
           今日なに食べて生きてこで提供するサービス（以下,「本サービス」といいます。）における，ユーザーの個人情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。
