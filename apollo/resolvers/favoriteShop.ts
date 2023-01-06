@@ -12,7 +12,7 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (
   context: { currentUserId: string }
 ) => {
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid && authenticatedUuid === args.id) {
+  if (!authenticatedUuid || authenticatedUuid !== args.id) {
     return {
       success: false,
       message: 'お気に入りの追加は許可されていません',
@@ -61,7 +61,7 @@ export const deleteFavoriteShop: MutationResolvers['deleteFavoriteShop'] = async
   context: { currentUserId: string }
 ) => {
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid && authenticatedUuid === args.id) {
+  if (!authenticatedUuid || authenticatedUuid !== args.id) {
     return {
       success: false,
       message: 'お気に入りの削除は許可されていません',
