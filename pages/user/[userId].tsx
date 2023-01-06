@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import useSWR from 'swr';
+import { Toaster } from 'react-hot-toast';
 import ShopItem from '~/components/ShopItem/Item';
 import Seo from '~/components/Seo';
 import { useAuthStore } from '~/stores/useAuthStore';
@@ -69,6 +70,7 @@ const UserPage: NextPage<Props> = ({ userId }) => {
           </ul>
         )}
       </div>
+      <Toaster position="top-right" />
     </>
   );
 };

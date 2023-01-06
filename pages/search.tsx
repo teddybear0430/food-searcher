@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import { Toaster } from 'react-hot-toast';
 import Loading from '~/components/Loading';
 import Seo from '~/components/Seo';
 import ShopItem from '~/components/ShopItem/Item';
@@ -86,6 +87,7 @@ const Search: NextPage = () => {
               )}
             </>
           )}
+          <Toaster position="top-right" />
         </>
       ) : (
         <div className="flex flex-col items-center">

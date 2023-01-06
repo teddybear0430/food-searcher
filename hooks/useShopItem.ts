@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { useState } from 'react';
 import { useSWRConfig } from 'swr';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '~/stores/useAuthStore';
 import { MutateResponse, MutationAddFavoriteShopArgs, MutationDeleteFavoriteShopArgs } from '~/types/type';
 import { Item } from '~/types/shop';
@@ -13,8 +14,6 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
   const { mutate } = useSWRConfig();
 
   const addFavoriteShop = async (item: Item) => {
-    setIsFavorite(true);
-
     const mutation = gql`
       mutation (
         $id: ID!
@@ -37,10 +36,12 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const { data, error } = await supabase.auth.getUser();
 
     // トーストを出す
-    if (error) return;
+    if (error) {
+      toast.error('お気に入りの削除に失敗しました');
+    }
 
     const params: MutationAddFavoriteShopArgs = {
-      id: data.user.id,
+      id: data.user?.id || '',
       name,
       address,
       genre,
@@ -49,15 +50,18 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
       card,
     };
 
-    await client(auth.token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
+    const res = await client(auth.token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
 
-    // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
-    if (userId) mutate(['user', userId]);
+    if (res.addFavoriteShop.success) {
+      setIsFavorite(true);
+      // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
+      if (userId) mutate(['user', userId]);
+    } else {
+      toast.error('お気に入りの削除に失敗しました');
+    }
   };
 
   const deleteFavoriteShop = async (item: Item) => {
-    setIsFavorite(false);
-
     const mutation = gql`
       mutation ($id: ID!, $name: String!) {
         deleteFavoriteShop(id: $id, name: $name) {
@@ -68,17 +72,23 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     `;
     const { data, error } = await supabase.auth.getUser();
 
-    // トーストを出す
-    if (error) return;
+    if (error) {
+      toast.error('お気に入りの削除に失敗しました');
+    }
 
     const params: MutationDeleteFavoriteShopArgs = {
-      id: data.user.id,
+      id: data.user?.id || '',
       name: item.name,
     };
 
-    await client(auth.token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
+    const res = await client(auth.token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
 
-    if (userId) mutate(['user', userId]);
+    if (res.deleteFavoriteShop.success) {
+      setIsFavorite(false);
+      if (userId) mutate(['user', userId]);
+    } else {
+      toast.error('お気に入りの削除に失敗しました');
+    }
   };
 
   return {
