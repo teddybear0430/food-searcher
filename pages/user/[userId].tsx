@@ -37,6 +37,7 @@ const UserPage: NextPage<Props> = ({ userId }) => {
   const { data } = useSWR<Query>(['user', userId], () => client().request(query, { userId }));
 
   const [auth] = useAuthStore();
+  const { isLoggedin } = auth;
 
   return (
     <>
@@ -48,7 +49,7 @@ const UserPage: NextPage<Props> = ({ userId }) => {
           </h1>
           {data.findUserByUserId.profile && <p className="whitespace-pre-wrap">{data.findUserByUserId.profile}</p>}
           {data.findUserByUserId.location && <p>居住地: {data.findUserByUserId.location}</p>}
-          {auth.isLoggedin && auth.uuid && (
+          {isLoggedin && (
             <Link href="/mypage" className="text-blue-700 hover:underline">
               プロフィールを編集する
             </Link>
@@ -64,6 +65,7 @@ const UserPage: NextPage<Props> = ({ userId }) => {
                 key={item.name}
                 item={item}
                 favoriteShops={data.findUserByUserId?.favoriteShops || []}
+                isLoggedin={Boolean(isLoggedin)}
                 userId={userId}
               />
             ))}

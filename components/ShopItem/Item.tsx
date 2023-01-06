@@ -10,17 +10,18 @@ import Label from './Label';
 type Props = {
   item: Item;
   favoriteShops: Item[];
+  isLoggedin: boolean;
   userId?: string;
 };
 
-const ShopItem: FC<Props> = ({ item, favoriteShops = [], userId }) => {
+const ShopItem: FC<Props> = ({ item, favoriteShops = [], isLoggedin, userId }) => {
   // 表示されている店舗がお気に入りに追加されているかチェックする
   const isFavoritedCheck = () => {
     if (favoriteShops.length === 0) return false;
     return Boolean(favoriteShops.find((e) => e.name === item.name));
   };
 
-  const { isFavorite, auth, addFavoriteShop, deleteFavoriteShop } = useShopItem(isFavoritedCheck(), userId);
+  const { isFavorite, addFavoriteShop, deleteFavoriteShop } = useShopItem(isFavoritedCheck(), userId);
 
   const handleFavorite = async (item: Item) => {
     if (!isFavorite) {
@@ -33,9 +34,9 @@ const ShopItem: FC<Props> = ({ item, favoriteShops = [], userId }) => {
   const { name, url, address, genre, lunch, card } = item;
 
   return (
-    <li key={name} className="relative my-4 p-4 rounded-lg shadow first-of-type:mt-0">
+    <li key={name} className="relative mb-4 p-4 rounded-lg shadow">
       <div className="absolute top-3 right-3 flex flex-col items-center">
-        {auth.token && (
+        {isLoggedin && (
           <>
             {favoriteShops.find((e) => e.name === name) ? (
               <button

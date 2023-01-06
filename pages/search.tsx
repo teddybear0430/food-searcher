@@ -20,6 +20,7 @@ const Search: NextPage = () => {
 
   const [position] = useStaticLatAndLng();
   const [auth] = useAuthStore();
+  const { isLoggedin, uuid } = auth;
 
   const query = gql`
     query getFoods($lat: Float!, $lng: Float!, $keyword: String, $id: ID!) {
@@ -46,7 +47,7 @@ const Search: NextPage = () => {
     // このコンポーネントはgeolocationAPIが有効になっていないと絶対にレンダリングされることはないので、nullの場合は0を代入する
     lat: lat === null ? 0 : lat,
     lng: lng === null ? 0 : lng,
-    id: auth.uuid,
+    id: uuid,
   };
   const { isLoading, data, error } = useSWR<Query>(['foods', lat, lng, keyword || ''], () =>
     client().request(query, params)
@@ -76,7 +77,12 @@ const Search: NextPage = () => {
                   {data.foods.length !== 0 && (
                     <ul>
                       {data.foods.map((item) => (
-                        <ShopItem key={item.name} item={item} favoriteShops={data.findUserById?.favoriteShops || []} />
+                        <ShopItem
+                          key={item.name}
+                          item={item}
+                          favoriteShops={data.findUserById?.favoriteShops || []}
+                          isLoggedin={Boolean(isLoggedin)}
+                        />
                       ))}
                     </ul>
                   )}

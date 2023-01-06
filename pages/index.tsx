@@ -58,7 +58,7 @@ const Home: NextPage = () => {
       <section className="my-6">
         <h2 className="text-2xl mb-2">今日なにたべて生きてこができること</h2>
         <ul className="list-disc mb-4 ml-5">
-          <li>今いる場所の近くの飲食店をすぐに検索することができます</li>
+          <li>今いる場所の近く（1km圏内）の飲食店をすぐに検索することができます</li>
           <li>キーワードなどの条件を加えて検索することもできます</li>
           <li>TwitterやLINEで検索した飲食店を共有することができます</li>
           <li>検索した飲食店をお気に入りに登録することができます</li>

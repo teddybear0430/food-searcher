@@ -10,7 +10,6 @@ import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextAreaField from '~/components/TextAreaField';
 import TextField from '~/components/TextField';
-import { useAuthStore } from '~/stores/useAuthStore';
 import { Query, MutateResponse, MutationUpdateUserArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
@@ -67,7 +66,6 @@ const MyPage: NextPage<Props> = ({ user }) => {
   }, [data, reset]);
 
   // 更新処理
-  const [auth] = useAuthStore();
   const { mutate } = useSWRConfig();
 
   const onSubmit: SubmitHandler<FormData> = async (newData) => {
@@ -86,7 +84,10 @@ const MyPage: NextPage<Props> = ({ user }) => {
       location: newData.location,
       profile: newData.profile,
     };
-    const res = await client(auth.token).request<{ updateUser: MutateResponse }>(mutation, params);
+
+    // JWT tokenの取得
+    const { session } = (await supabase.auth.getSession()).data;
+    const res = await client(session?.access_token).request<{ updateUser: MutateResponse }>(mutation, params);
 
     mutate(['mypage', user?.id]);
 

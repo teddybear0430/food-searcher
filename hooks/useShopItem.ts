@@ -10,7 +10,6 @@ import { supabase } from '~/utils/supabaseClient';
 
 export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
   const [isFavorite, setIsFavorite] = useState(isFavoritedCheck);
-  const [auth] = useAuthStore();
   const { mutate } = useSWRConfig();
 
   const addFavoriteShop = async (item: Item) => {
@@ -50,7 +49,9 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
       card,
     };
 
-    const res = await client(auth.token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
+    // JWT tokenの取得
+    const { session } = (await supabase.auth.getSession()).data;
+    const res = await client(session?.access_token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
 
     if (res.addFavoriteShop.success) {
       setIsFavorite(true);
@@ -81,7 +82,9 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
       name: item.name,
     };
 
-    const res = await client(auth.token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
+    // JWT tokenの取得
+    const { session } = (await supabase.auth.getSession()).data;
+    const res = await client(session?.access_token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
 
     if (res.deleteFavoriteShop.success) {
       setIsFavorite(false);
@@ -93,7 +96,6 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
 
   return {
     isFavorite,
-    auth,
     addFavoriteShop,
     deleteFavoriteShop,
   };

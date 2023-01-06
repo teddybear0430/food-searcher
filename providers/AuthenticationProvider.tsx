@@ -1,4 +1,4 @@
-import { FC, ReactChild, useEffect } from 'react';
+import { FC, ReactChild, useCallback, useEffect } from 'react';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useAuthStore } from '~/stores/useAuthStore';
 import { supabase } from '~/utils/supabaseClient';
@@ -11,27 +11,28 @@ const AuthenticationProvider: FC<Props> = ({ children }) => {
   const [_, setAuth] = useAuthStore();
 
   // 認証状態に応じてグローバルステートの切り替えを行う
-  const handleSession = (session: Session | null) => {
-    if (session !== null) {
-      setAuth({
-        uuid: session.user.id,
-        token: session.access_token,
-        isLoggedin: true,
-      });
-    } else {
-      setAuth({
-        uuid: '',
-        token: '',
-        isLoggedin: false,
-      });
-    }
-  };
+  const handleSession = useCallback(
+    (session: Session | null) => {
+      if (session !== null) {
+        setAuth({
+          uuid: session.user.id,
+          isLoggedin: true,
+        });
+      } else {
+        setAuth({
+          uuid: '',
+          isLoggedin: false,
+        });
+      }
+    },
+    [setAuth]
+  );
 
   // 認証中かどうかのチェック
-  const authCheck = async () => {
+  const authCheck = useCallback(async () => {
     const { session } = (await supabase.auth.getSession()).data;
     handleSession(session);
-  };
+  }, [handleSession]);
 
   // セッション情報からアクセストークンとリフレッシュ トークンを取得してクッキーの更新処理を行う
   // SSRを行うときに必要になる処理
@@ -61,7 +62,7 @@ const AuthenticationProvider: FC<Props> = ({ children }) => {
     return () => {
       data.subscription.unsubscribe;
     };
-  }, []);
+  }, [handleSession, authCheck]);
 
   return <>{children}</>;
 };
