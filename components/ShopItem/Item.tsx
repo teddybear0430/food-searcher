@@ -10,16 +10,17 @@ import Label from './Label';
 type Props = {
   item: Item;
   favoriteShops: Item[];
+  userId?: string;
 };
 
-const ShopItem: FC<Props> = ({ item, favoriteShops = [] }) => {
+const ShopItem: FC<Props> = ({ item, favoriteShops = [], userId }) => {
   // 表示されている店舗がお気に入りに追加されているかチェックする
   const isFavoritedCheck = () => {
     if (favoriteShops.length === 0) return false;
     return Boolean(favoriteShops.find((e) => e.name === item.name));
   };
 
-  const { isFavorite, auth, addFavoriteShop, deleteFavoriteShop } = useShopItem(isFavoritedCheck());
+  const { isFavorite, auth, addFavoriteShop, deleteFavoriteShop } = useShopItem(isFavoritedCheck(), userId);
 
   const handleFavorite = async (item: Item) => {
     if (!isFavorite) {

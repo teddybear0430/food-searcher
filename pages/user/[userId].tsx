@@ -33,7 +33,7 @@ const UserPage: NextPage<Props> = ({ userId }) => {
     }
   `;
 
-  const { data } = useSWR<Query>(['/api/mypage', userId], () => client().request(query, { userId }));
+  const { data } = useSWR<Query>(['user', userId], () => client().request(query, { userId }));
 
   const [auth] = useAuthStore();
 
@@ -59,7 +59,12 @@ const UserPage: NextPage<Props> = ({ userId }) => {
         {data && (
           <ul>
             {data.findUserByUserId?.favoriteShops.map((item) => (
-              <ShopItem key={item.name} item={item} favoriteShops={data.findUserByUserId?.favoriteShops || []} />
+              <ShopItem
+                key={item.name}
+                item={item}
+                favoriteShops={data.findUserByUserId?.favoriteShops || []}
+                userId={userId}
+              />
             ))}
           </ul>
         )}

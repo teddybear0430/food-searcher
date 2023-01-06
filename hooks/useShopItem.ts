@@ -1,14 +1,16 @@
-import { useState } from 'react';
 import { gql } from 'graphql-request';
+import { useState } from 'react';
+import { useSWRConfig } from 'swr';
 import { useAuthStore } from '~/stores/useAuthStore';
 import { MutateResponse, MutationAddFavoriteShopArgs, MutationDeleteFavoriteShopArgs } from '~/types/type';
 import { Item } from '~/types/shop';
 import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
 
-export const useShopItem = (isFavoritedCheck: boolean) => {
+export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
   const [isFavorite, setIsFavorite] = useState(isFavoritedCheck);
   const [auth] = useAuthStore();
+  const { mutate } = useSWRConfig();
 
   const addFavoriteShop = async (item: Item) => {
     setIsFavorite(true);
@@ -31,7 +33,7 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
     `;
     const { name, address, genre, url, lunch, card } = item;
 
-    // uuidの取得は最新の状態を取得するために、キャッシュの値ではなくバックエンドと通信を行って取得する
+    // uuidの取得は最新の状態を取得するために、キャッシュに保持されている値ではなくバックエンドと通信を行って取得する
     const { data, error } = await supabase.auth.getUser();
 
     // トーストを出す
@@ -47,9 +49,10 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
       card,
     };
 
-    const res = await client(auth.token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
+    await client(auth.token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
 
-    return res.addFavoriteShop;
+    // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
+    if (userId) mutate(['user', userId]);
   };
 
   const deleteFavoriteShop = async (item: Item) => {
@@ -73,9 +76,9 @@ export const useShopItem = (isFavoritedCheck: boolean) => {
       name: item.name,
     };
 
-    const res = await client(auth.token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
+    await client(auth.token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
 
-    return res.deleteFavoriteShop;
+    if (userId) mutate(['user', userId]);
   };
 
   return {
