@@ -12,14 +12,23 @@ export const useGeolocated = () => {
     if ('geolocation' in navigator) {
       setAvailable(true);
 
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
 
-        setPosition({
-          lat: latitude,
-          lng: longitude,
-        });
-      });
+          setPosition({
+            lat: latitude,
+            lng: longitude,
+          });
+        },
+        (error) => {
+          setAvailable(false);
+
+          if (error && !isAvailable) {
+            window.alert('位置情報が有効になっていません');
+          }
+        }
+      );
     } else {
       setAvailable(false);
     }

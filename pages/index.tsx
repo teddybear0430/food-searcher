@@ -1,6 +1,6 @@
-import { ChangeEvent, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { ChangeEvent, useState } from 'react';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextField from '~/components/TextField';
@@ -65,6 +65,9 @@ const Home: NextPage = () => {
           <li>お腹は空いているけど何が食べたいかよくわからない時</li>
           <li>初めて行く場所でどんな飲食店があるか探して見たい時</li>
         </ul>
+      </section>
+      <section className="my-6">
+        <h2 className="text-2xl">お問い合わせ</h2>
       </section>
     </>
   );

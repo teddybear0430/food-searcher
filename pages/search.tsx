@@ -15,7 +15,7 @@ const Search: NextPage = () => {
   useGeolocated();
 
   const router = useRouter();
-  const keyword = router.query.keyword as string;
+  const keyword = router.query.keyword;
 
   const [position] = useStaticLatAndLng();
   const [auth] = useAuthStore();
@@ -40,14 +40,14 @@ const Search: NextPage = () => {
   `;
   const { lat, lng } = position;
   const params: QueryFoodsArgs & QueryFindUserByIdArgs = {
-    keyword: keyword || '',
+    keyword: (keyword as string) || '',
     // 経度と緯度の初期値にnullを設定している都合上、nullかどうかのエラーハンドリングが必要になる
     // このコンポーネントはgeolocationAPIが有効になっていないと絶対にレンダリングされることはないので、nullの場合は0を代入する
     lat: lat === null ? 0 : lat,
     lng: lng === null ? 0 : lng,
     id: auth.uuid,
   };
-  const { isLoading, data, error } = useSWR<Query>(['/api/foods', lat, lng, keyword], () =>
+  const { isLoading, data, error } = useSWR<Query>(['/api/foods', lat, lng, keyword || ''], () =>
     client().request(query, params)
   );
 
@@ -56,7 +56,7 @@ const Search: NextPage = () => {
       <Seo title="検索結果" />
       {position.lat !== null && position.lng !== null ? (
         <>
-          {error && (
+          {error && !data && (
             <p className="font-bold text-red-600">
               エラーが発生しました。
               <br />
