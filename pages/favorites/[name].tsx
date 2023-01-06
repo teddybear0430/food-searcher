@@ -22,7 +22,7 @@ const UserPage: NextPage<Props> = ({ name }) => {
   const params: QueryUsersRegisteredAsFavoritesArgs = {
     name,
   };
-  const { data } = useSWR<Query>(['/api/favorites', name], () => client().request(query, params));
+  const { data } = useSWR<Query>(['favorites', name], () => client().request(query, params));
 
   return (
     <>

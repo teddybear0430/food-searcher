@@ -47,7 +47,7 @@ const Search: NextPage = () => {
     lng: lng === null ? 0 : lng,
     id: auth.uuid,
   };
-  const { isLoading, data, error } = useSWR<Query>(['/api/foods', lat, lng, keyword || ''], () =>
+  const { isLoading, data, error } = useSWR<Query>(['foods', lat, lng, keyword || ''], () =>
     client().request(query, params)
   );
 

@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import toast, { Toaster } from 'react-hot-toast';
 import { User } from '@supabase/supabase-js';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextAreaField from '~/components/TextAreaField';
@@ -53,7 +53,7 @@ const MyPage: NextPage<Props> = ({ user }) => {
       }
     }
   `;
-  const { isLoading, data } = useSWR<Query>(['/api/mypage', user?.id], () =>
+  const { isLoading, data } = useSWR<Query>(['mypage', user?.id], () =>
     client().request(query, { id: user?.id || '' })
   );
 
@@ -68,8 +68,9 @@ const MyPage: NextPage<Props> = ({ user }) => {
 
   // 更新処理
   const [auth] = useAuthStore();
+  const { mutate } = useSWRConfig();
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit: SubmitHandler<FormData> = async (newData) => {
     const mutation = gql`
       mutation updateUser($id: ID!, $userId: String, $name: String, $location: String, $profile: String) {
         updateUser(id: $id, userId: $userId, name: $name, location: $location, profile: $profile) {
@@ -80,12 +81,15 @@ const MyPage: NextPage<Props> = ({ user }) => {
     `;
     const params: MutationUpdateUserArgs = {
       id: user?.id || '',
-      userId: data.userId,
-      name: data.name,
-      location: data.location,
-      profile: data.profile,
+      userId: newData.userId,
+      name: newData.name,
+      location: newData.location,
+      profile: newData.profile,
     };
     const res = await client(auth.token).request<{ updateUser: MutateResponse }>(mutation, params);
+
+    mutate(['mypage', user?.id]);
+
     if (res.updateUser.success) {
       toast.success('プロフィールの編集に成功しました');
     } else {
