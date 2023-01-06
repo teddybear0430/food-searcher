@@ -92,11 +92,10 @@ const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId 
 /**
  * ログインしているユーザー情報の更新
  * */
-const updateUser: MutationResolvers['updateUser'] = async (_, args, context) => {
-  // uuidの取得と存在チェック
-  // 認証済みユーザーのuuidが取得できない時点で処理を中断する
+const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { currentUserId: string }) => {
+  // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid) {
+  if (!authenticatedUuid && authenticatedUuid === args.id) {
     return {
       success: false,
       message: 'ユーザー情報の更新は許可されていません',
