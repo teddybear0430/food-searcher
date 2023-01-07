@@ -99,6 +99,55 @@ const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId 
 };
 
 /**
+ * ユーザー情報の新規作成
+ * */
+const createUser: MutationResolvers['createUser'] = async (_, args, context: { currentUserId: string }) => {
+  // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
+  const authenticatedUuid = context.currentUserId;
+  if (!authenticatedUuid || authenticatedUuid !== args.id) {
+    return {
+      success: false,
+      message: 'ユーザー情報の作成は許可されていません',
+    };
+  }
+
+  const schema = z.object({
+    id: z.string().uuid().nonempty(),
+    userId: z.string().nonempty(),
+    name: z.string(),
+    location: z.string(),
+    // 200文字以下の文字列
+    profile: z.string().max(200),
+  });
+
+  try {
+    // バリデーションチェックの実施
+    schema.parse(args);
+    const { id, userId, name, location, profile } = args;
+
+    // ユーザー情報の新規作成
+    const { error } = await supabase
+      .from('users')
+      .insert({ id, user_id: userId, name, location, profile, created_at: now, updated_at: now });
+
+    if (error) {
+      return {
+        success: false,
+        message: 'ユーザー情報の作成時にエラーが発生しました',
+      };
+    }
+
+    return {
+      success: true,
+      message: 'ユーザー情報の作成に成功しました',
+    };
+  } catch (er) {
+    console.error(er);
+    throw er;
+  }
+};
+
+/**
  * ログインしているユーザー情報の更新
  * */
 const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { currentUserId: string }) => {
@@ -129,9 +178,11 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { c
     const { data: findUserData, error: findUserError } = await supabase.from('users').select().eq('id', id).single();
 
     if (findUserError) {
-      throw new Error('ユーザー情報の取得を行う際にエラーが発生しました');
+      return {
+        success: false,
+        message: 'ユーザー情報の取得時にエラーが発生しました',
+      };
     }
-
     if (!findUserData) {
       return {
         success: false,
@@ -146,7 +197,10 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { c
       .eq('id', id);
 
     if (updateUserError) {
-      throw new Error('ユーザー情報の更新時にエラーが発生しました');
+      return {
+        success: false,
+        message: 'ユーザー情報の更新時にエラーが発生しました',
+      };
     }
 
     return {
@@ -187,4 +241,4 @@ const usersRegisteredAsFavorites: QueryResolvers['usersRegisteredAsFavorites'] =
   }
 };
 
-export { findUserById, findUserByUserId, updateUser, usersRegisteredAsFavorites };
+export { findUserById, findUserByUserId, createUser, updateUser, usersRegisteredAsFavorites };

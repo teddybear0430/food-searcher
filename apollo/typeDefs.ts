@@ -58,6 +58,9 @@ export const typeDefs = gql`
   }
 
   type Mutation {
+    # ユーザー情報の新規作成
+    createUser(id: ID!, userId: String!, name: String, location: String, profile: String): MutateResponse!
+
     # ユーザー情報の更新
     updateUser(id: ID!, userId: String, name: String, location: String, profile: String): MutateResponse!
 

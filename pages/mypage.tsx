@@ -1,27 +1,21 @@
-import { gql } from 'graphql-request';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import toast, { Toaster } from 'react-hot-toast';
-import useSWR, { useSWRConfig } from 'swr';
+import { Toaster } from 'react-hot-toast';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextAreaField from '~/components/TextAreaField';
 import TextField from '~/components/TextField';
+import { FormData, useMyPage } from '~/hooks/useMypage';
 import { useAuthStore } from '~/stores/useAuthStore';
-import { Query, MutateResponse, MutationUpdateUserArgs } from '~/types/type';
-import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
 
-type FormData = {
-  userId: string;
-  name: string;
-  location: string;
-  profile: string;
-};
-
 const MyPage: NextPage = () => {
+  const [auth] = useAuthStore();
+  const { isLoggedin, uuid } = auth;
+  const { data, isLoading, updateUserData, createUserData } = useMyPage(uuid);
+
   // フォームのバリデーション
   const {
     handleSubmit,
@@ -38,22 +32,6 @@ const MyPage: NextPage = () => {
   // watchを使わないと、初回レンダリング時にボタンの非活性が解除されなかった
   const watchUserIdValue = watch(['userId']);
   const isUserIdEmpty = watchUserIdValue.every((e) => e === '');
-
-  const query = gql`
-    query ($id: ID!) {
-      findUserById(id: $id) {
-        name
-        userId
-        location
-        profile
-      }
-    }
-  `;
-
-  const [auth] = useAuthStore();
-  const { isLoggedin, uuid } = auth;
-
-  const { isLoading, data } = useSWR<Query>(['mypage', uuid], () => client().request(query, { id: uuid }));
 
   // メールアドレスの取得
   const [email, setEmail] = useState('');
@@ -73,36 +51,11 @@ const MyPage: NextPage = () => {
     });
   }, [data, reset]);
 
-  // 更新処理
-  const { mutate } = useSWRConfig();
-
   const onSubmit: SubmitHandler<FormData> = async (newData) => {
-    const mutation = gql`
-      mutation updateUser($id: ID!, $userId: String, $name: String, $location: String, $profile: String) {
-        updateUser(id: $id, userId: $userId, name: $name, location: $location, profile: $profile) {
-          success
-          message
-        }
-      }
-    `;
-    const params: MutationUpdateUserArgs = {
-      id: uuid,
-      userId: newData.userId,
-      name: newData.name,
-      location: newData.location,
-      profile: newData.profile,
-    };
-
-    // JWT tokenの取得
-    const { session } = (await supabase.auth.getSession()).data;
-    const res = await client(session?.access_token).request<{ updateUser: MutateResponse }>(mutation, params);
-
-    mutate(['mypage', uuid]);
-
-    if (res.updateUser.success) {
-      toast.success('プロフィールの編集に成功しました');
+    if (data?.findUserById === null) {
+      await createUserData(newData);
     } else {
-      toast.error('プロフィールの編集に失敗しました');
+      await updateUserData(newData);
     }
   };
 
@@ -161,7 +114,7 @@ const MyPage: NextPage = () => {
             {errors.profile && <p className="text-red-600">200文字以内で入力してください</p>}
             <div className="mt-6 flex">
               <Button theme="primary" type="submit" disabled={isUserIdEmpty || !isValid}>
-                保存
+                {data?.findUserById === null ? '新規作成' : '保存'}
               </Button>
             </div>
           </form>

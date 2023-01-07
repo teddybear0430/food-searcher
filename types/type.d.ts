@@ -53,6 +53,10 @@ export type MutationAddFavoriteShopArgs = {
 
 export type MutationCreateUserArgs = {
   id: Scalars['ID'];
+  location?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  profile?: InputMaybe<Scalars['String']>;
+  userId: Scalars['String'];
 };
 
 
@@ -262,7 +266,7 @@ export type MutateResponseResolvers<ContextType = any, ParentType extends Resolv
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationAddFavoriteShopArgs, 'address' | 'card' | 'genre' | 'id' | 'lunch' | 'name' | 'url'>>;
-  createUser?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'id'>>;
+  createUser?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'id' | 'userId'>>;
   deleteFavoriteShop?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationDeleteFavoriteShopArgs, 'id' | 'name'>>;
   updateUser?: Resolver<ResolversTypes['MutateResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id'>>;
 };
