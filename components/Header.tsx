@@ -25,7 +25,6 @@ const Header: FC = () => {
 
       setAuth({
         uuid: '',
-        token: '',
         isLoggedin: false,
       });
     } catch (er) {
@@ -35,16 +34,16 @@ const Header: FC = () => {
 
   return (
     <>
-      <header className="p-3 backdrop-blur bg-white/60 shadow-lg border-b fixed top-0 left-0 w-full z-10">
-        <div className="flex justify-between items-center">
-          <h1 className="inline-block lg:w-60">
+      <header className="px-2 backdrop-blur bg-white/60 shadow-lg border-b fixed top-0 left-0 w-full z-10 h-16">
+        <div className="flex justify-between items-center w-11/12 lg:w-7/12 h-full mx-auto">
+          <h1 className="font-logo sm:w-auto w-32">
             <Link href="/">今日なにたべて生きてこ</Link>
           </h1>
           {auth.isLoggedin !== null && (
             <ul className="flex text-sm">
               {!auth.isLoggedin && (
                 <>
-                  <li className="mx-2">
+                  <li className="sm:mx-2 mx-1">
                     <button
                       onClick={() => {
                         setIsOpen(true);
@@ -56,7 +55,7 @@ const Header: FC = () => {
                       <span className="text-sm">ログイン</span>
                     </button>
                   </li>
-                  <li className="mx-2">
+                  <li className="sm:mx-2 mx-1">
                     <button
                       onClick={() => {
                         setIsOpen(true);
@@ -72,16 +71,16 @@ const Header: FC = () => {
               )}
               {auth.isLoggedin && (
                 <>
-                  <li className="mx-2">
+                  <li className="sm:mx-2 mx-1">
                     <Link href="/mypage" className="flex flex-col items-center text-xl">
                       <BsHouseDoorFill />
-                      <span className="text-sm">マイページ</span>
+                      <span className="sm:text-sm text-xs">マイページ</span>
                     </Link>
                   </li>
-                  <li className="mx-2">
+                  <li className="sm:mx-2 mx-1">
                     <button onClick={signOut} className="flex flex-col items-center text-xl">
                       <GoSignOut />
-                      <span className="text-sm">ログアウト</span>
+                      <span className="sm:text-sm text-xs">ログアウト</span>
                     </button>
                   </li>
                 </>
