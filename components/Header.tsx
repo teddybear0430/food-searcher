@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 import { BsHouseDoorFill, BsPersonCheck } from 'react-icons/bs';
 import { GoSignOut, GoSignIn } from 'react-icons/go';
 import AuthModal from '~/components/AuthModal';
+import { app } from '~/constants/app';
 import { useAuthStore } from '~/stores/useAuthStore';
 import { supabase } from '~/utils/supabaseClient';
 
@@ -37,7 +38,7 @@ const Header: FC = () => {
       <header className="px-2 backdrop-blur bg-white/60 shadow-lg border-b fixed top-0 left-0 w-full z-10 h-16">
         <div className="flex justify-between items-center w-11/12 lg:w-7/12 h-full mx-auto">
           <h1 className="font-logo sm:w-auto w-32">
-            <Link href="/">今日なにたべて生きてこ</Link>
+            <Link href="/">{app.name}</Link>
           </h1>
           {auth.isLoggedin !== null && (
             <ul className="flex text-sm">
