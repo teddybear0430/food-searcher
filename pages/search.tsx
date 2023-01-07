@@ -8,17 +8,13 @@ import Seo from '~/components/Seo';
 import ShopItem from '~/components/ShopItem/Item';
 import { useAuthStore } from '~/stores/useAuthStore';
 import { useGeolocated } from '~/hooks/useGeolocated';
-import { useStaticLatAndLng } from '~/stores/useStaticLatAndLng';
 import { Query, QueryFoodsArgs, QueryFindUserByIdArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
 
 const Search: NextPage = () => {
-  useGeolocated();
-
   const router = useRouter();
   const keyword = router.query.keyword;
 
-  const [position] = useStaticLatAndLng();
   const [auth] = useAuthStore();
   const { isLoggedin, uuid } = auth;
 
@@ -40,7 +36,9 @@ const Search: NextPage = () => {
       }
     }
   `;
-  const { lat, lng } = position;
+
+  const { position } = useGeolocated();
+  const { latitude: lat, longitude: lng } = position;
   const params: QueryFoodsArgs & QueryFindUserByIdArgs = {
     keyword: (keyword as string) || '',
     // 経度と緯度の初期値にnullを設定している都合上、nullかどうかのエラーハンドリングが必要になる
@@ -56,7 +54,7 @@ const Search: NextPage = () => {
   return (
     <>
       <Seo title="検索結果" />
-      {position.lat !== null && position.lng !== null ? (
+      {lat !== null && lng !== null ? (
         <>
           {isLoading ? (
             <div className="flex flex-col items-center">

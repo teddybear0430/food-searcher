@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useStaticLatAndLng } from '~/stores/useStaticLatAndLng';
+import { LatAndLon } from '~/types/latAndLon';
+
+type Result = { isAvailable: boolean; position: LatAndLon };
 
 /**
  * 位置情報の習得とGeolocation APIが有効になっているかをチェックする処理をまとめたフック
  * */
-export const useGeolocated = () => {
+export const useGeolocated = (): Result => {
   const [isAvailable, setAvailable] = useState(false);
-  const [_, setPosition] = useStaticLatAndLng();
+  const [position, setPosition] = useState<LatAndLon>({ latitude: null, longitude: null });
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -14,14 +16,11 @@ export const useGeolocated = () => {
         (position) => {
           setAvailable(true);
           const { latitude, longitude } = position.coords;
-
-          setPosition({
-            lat: latitude,
-            lng: longitude,
-          });
+          setPosition({ latitude, longitude });
         },
         (error) => {
           setAvailable(false);
+          setPosition({ latitude: null, longitude: null });
 
           if (error && !isAvailable) {
             window.alert('位置情報が有効になっていません');
@@ -30,10 +29,12 @@ export const useGeolocated = () => {
       );
     } else {
       setAvailable(false);
+      setPosition({ latitude: null, longitude: null });
     }
   }, [isAvailable, setPosition]);
 
   return {
     isAvailable,
+    position,
   };
 };

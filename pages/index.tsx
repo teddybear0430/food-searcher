@@ -4,7 +4,6 @@ import { ChangeEvent, useState } from 'react';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextField from '~/components/TextField';
-import { useGeolocated } from '~/hooks/useGeolocated';
 
 const Home: NextPage = () => {
   const [keyword, setKeyword] = useState('');
@@ -22,8 +21,6 @@ const Home: NextPage = () => {
     });
   };
 
-  const { isAvailable } = useGeolocated();
-
   return (
     <>
       <Seo />
@@ -34,27 +31,25 @@ const Home: NextPage = () => {
           そんなことありませんか？
         </strong>
       </section>
-      {isAvailable && (
-        <section className="my-6">
-          <form onSubmit={(e) => e.preventDefault()}>
-            <h1 className="text-3xl font-bold text-center mb-2">あなたの近くにある飲食店を探してみよう</h1>
-            <div className="text-center">
-              <Button theme="secondly" onClick={handleClick} disabled={!isAvailable}>
-                検索
-              </Button>
-            </div>
-            <TextField
-              inputLabel="キーワードから探す"
-              id="keyword"
-              name="keyword"
-              type="text"
-              placeholder="キーワードを入力する"
-              value={keyword}
-              onChange={handleChange}
-            />
-          </form>
-        </section>
-      )}
+      <section className="my-6">
+        <form onSubmit={(e) => e.preventDefault()}>
+          <h1 className="text-3xl font-bold text-center mb-2">あなたの近くにある飲食店を探してみよう</h1>
+          <div className="text-center">
+            <Button theme="secondly" onClick={handleClick}>
+              検索
+            </Button>
+          </div>
+          <TextField
+            inputLabel="キーワードから探す"
+            id="keyword"
+            name="keyword"
+            type="text"
+            placeholder="キーワードを入力する"
+            value={keyword}
+            onChange={handleChange}
+          />
+        </form>
+      </section>
       <section className="my-6">
         <h2 className="text-2xl mb-2">今日なにたべて生きてこができること</h2>
         <ul className="list-disc mb-4 ml-5">
