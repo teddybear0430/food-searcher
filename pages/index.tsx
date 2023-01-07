@@ -27,7 +27,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Seo />
-      <section className="mb-12 py-16 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 mr-[calc(50%-50vw)] ml-[calc(50%-50vw)] text-center text-white mt-16">
+      <section className="mb-12 py-16 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 mr-[calc(50%-50vw)] ml-[calc(50%-50vw)] text-center text-white mt-[-32px]">
         <strong className="text-2xl">
           お腹はすいているけど、何を食べたいのかよくわからない...
           <br />
