@@ -16,7 +16,7 @@ const Seo: React.FC<Props> = ({ title, description }) => {
         content={description ? `${description}` : '位置情報を元に近所の飲食店を検索できるアプリケーションです。'}
       />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="icon" href="/favicon.ico" />
+      <link rel="icon" href="/favicon.svg" />
     </Head>
   );
 };
