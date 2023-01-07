@@ -11,6 +11,15 @@ const findUserById: QueryResolvers['findUserById'] = async (_, { id }) => {
   if (!id) return null;
 
   try {
+    // サインアップ直後はusersテーブルに認証中のユーザーのレコードが存在しないので、正常に処理が実行された場合はnullを返却する
+    const { data: findUuid, error: findUuIdError } = await supabase.from('users').select('id').eq('id', id);
+    if (findUuIdError) {
+      throw new Error('ユーザー情報の取得時にエラーが発生しました');
+    }
+    if (findUuid?.length === 0 && findUuIdError === null) {
+      return null;
+    }
+
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('user_id, name, location, profile')
