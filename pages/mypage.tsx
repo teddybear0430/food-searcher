@@ -1,22 +1,19 @@
 import { gql } from 'graphql-request';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import toast, { Toaster } from 'react-hot-toast';
-import { User } from '@supabase/supabase-js';
 import useSWR, { useSWRConfig } from 'swr';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextAreaField from '~/components/TextAreaField';
 import TextField from '~/components/TextField';
+import { useAuthStore } from '~/stores/useAuthStore';
 import { Query, MutateResponse, MutationUpdateUserArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
 
-type Props = {
-  user: User | null;
-};
 type FormData = {
   userId: string;
   name: string;
@@ -24,7 +21,7 @@ type FormData = {
   profile: string;
 };
 
-const MyPage: NextPage<Props> = ({ user }) => {
+const MyPage: NextPage = () => {
   // フォームのバリデーション
   const {
     handleSubmit,
@@ -52,11 +49,22 @@ const MyPage: NextPage<Props> = ({ user }) => {
       }
     }
   `;
-  const { isLoading, data } = useSWR<Query>(['mypage', user?.id], () =>
-    client().request(query, { id: user?.id || '' })
-  );
+
+  const [auth] = useAuthStore();
+  const { isLoggedin, uuid } = auth;
+
+  const { isLoading, data } = useSWR<Query>(['mypage', uuid], () => client().request(query, { id: uuid }));
+
+  // メールアドレスの取得
+  const [email, setEmail] = useState('');
+  const getEmail = async () => {
+    const { data } = await supabase.auth.getUser();
+    setEmail(data.user?.email || '');
+  };
 
   useEffect(() => {
+    getEmail();
+
     reset({
       userId: data?.findUserById?.userId,
       name: data?.findUserById?.name || '',
@@ -78,7 +86,7 @@ const MyPage: NextPage<Props> = ({ user }) => {
       }
     `;
     const params: MutationUpdateUserArgs = {
-      id: user?.id || '',
+      id: uuid,
       userId: newData.userId,
       name: newData.name,
       location: newData.location,
@@ -89,7 +97,7 @@ const MyPage: NextPage<Props> = ({ user }) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ updateUser: MutateResponse }>(mutation, params);
 
-    mutate(['mypage', user?.id]);
+    mutate(['mypage', uuid]);
 
     if (res.updateUser.success) {
       toast.success('プロフィールの編集に成功しました');
@@ -102,14 +110,14 @@ const MyPage: NextPage<Props> = ({ user }) => {
     <>
       <Seo title="マイページ" />
       <h1 className="text-2xl">マイページ</h1>
-      {!isLoading && (
+      {!isLoading && isLoggedin && (
         <>
           {data && (
             <Link href={`/user/${data.findUserById?.userId}`} className="text-blue-700 hover:underline">
               {data.findUserById?.name ? data.findUserById?.name : data.findUserById?.userId}
             </Link>
           )}
-          {user && <p>メールアドレス: {user.email}</p>}
+          {email && <p>メールアドレス: {email}</p>}
           <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
               inputLabel="ユーザーId"
@@ -179,7 +187,7 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
     };
   }
 
-  const { data, error } = await supabase.auth.setSession({
+  const { error } = await supabase.auth.setSession({
     access_token: accessToken,
     refresh_token: refreshToken,
   });
@@ -194,9 +202,7 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
   }
 
   return {
-    props: {
-      user: data.user,
-    },
+    props: {},
   };
 };
 
