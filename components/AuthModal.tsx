@@ -1,13 +1,9 @@
-import { gql } from 'graphql-request';
 import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, Dispatch, SetStateAction, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { AiOutlineClose } from 'react-icons/ai';
 import Button from '~/components/Button';
 import TextField from '~/components/TextField';
-import { useAuthStore } from '~/stores/useAuthStore';
-import { MutateResponse, MutationCreateUserArgs } from '~/types/type';
-import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
 
 type Props = {
@@ -34,14 +30,14 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
     criteriaMode: 'all',
   });
 
+  const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const closeModal = () => setIsOpen(false);
-  const [_, setAuth] = useAuthStore();
 
   // 登録
   const handleSignUp = async (email: string, password: string) => {
     try {
-      const { data: userData, error: signUpError } = await supabase.auth.signUp({ email, password });
+      const { error: signUpError } = await supabase.auth.signUp({ email, password });
 
       if (signUpError) {
         setErrorMessage(
@@ -50,39 +46,12 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
         return;
       }
 
-      // TODO
-      // ここで失敗したら、既に作成したユーザーを削除するみたいなトランザクション処理的なことをやりたい
-      const mutation = gql`
-        mutation ($id: ID!) {
-          createUser(id: $id) {
-            success
-            message
-          }
-        }
-      `;
-      const params: MutationCreateUserArgs = {
-        id: userData.user?.id || '',
-      };
-      const res = await client(userData.session?.access_token).request<{ createUser: MutateResponse }>(
-        mutation,
-        params
-      );
-
-      if (!res.createUser.success) {
-        setAuth({
-          uuid: '',
-          isLoggedin: false,
-        });
-        setErrorMessage('アカウントの作成に失敗しました。');
-        return;
-      }
-
       reset({
         email: '',
         password: '',
       });
 
-      closeModal();
+      setSuccessMessage('確認用のメールアドレスを送信しました。');
     } catch (er) {
       console.error(er);
     }
@@ -191,6 +160,9 @@ const SignupModal: FC<Props> = ({ isOpen, setIsOpen, type = 'signup' }) => {
                   />
                   {errorMessage && (
                     <p className="mt-2 text-sm text-red-600 font-bold whitespace-pre-wrap">{errorMessage}</p>
+                  )}
+                  {type === 'signup' && successMessage && (
+                    <p className="mt-2 text-sm text-green-600 font-bold whitespace-pre-wrap">{successMessage}</p>
                   )}
                   <div className="mt-6 text-center">
                     {type === 'signup' && (

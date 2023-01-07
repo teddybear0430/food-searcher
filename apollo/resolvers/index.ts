@@ -1,6 +1,6 @@
 import { addFavoriteShop, deleteFavoriteShop } from './favoriteShop';
 import { foods } from './foods';
-import { findUserById, findUserByUserId, createUser, updateUser, usersRegisteredAsFavorites } from './user';
+import { findUserById, findUserByUserId, updateUser, usersRegisteredAsFavorites } from './user';
 
 export const resolvers = {
   Query: {
@@ -10,7 +10,6 @@ export const resolvers = {
     usersRegisteredAsFavorites,
   },
   Mutation: {
-    createUser,
     updateUser,
     addFavoriteShop,
     deleteFavoriteShop,

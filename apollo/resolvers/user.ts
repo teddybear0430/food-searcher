@@ -90,50 +90,6 @@ const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId 
 };
 
 /**
- * 認証用ではないパブリックの方のユーザーテーブルにデータを作成する
- * */
-const createUser: MutationResolvers['createUser'] = async (_, { id }, context: { currentUserId: string }) => {
-  // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
-  const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid || authenticatedUuid !== id) {
-    return {
-      success: false,
-      message: 'ユーザー情報の更新は許可されていません',
-    };
-  }
-
-  const schema = z.object({
-    // uuidかつ空ではない
-    id: z.string().uuid().nonempty(),
-  });
-
-  try {
-    // バリデーションチェックの実施
-    schema.parse({ id });
-
-    const { error } = await supabase.from('users').insert({
-      id,
-      // ユーザーIDの初期値としてランダム文字列を生成する
-      user_id: Math.random().toString(32).substring(2),
-      created_at: now,
-      updated_at: now,
-    });
-
-    if (error) {
-      throw new Error('ユーザー情報の作成時にエラーが発生しました');
-    }
-
-    return {
-      success: true,
-      message: 'ユーザー情報の作成に成功しました',
-    };
-  } catch (er) {
-    console.error(er);
-    throw er;
-  }
-};
-
-/**
  * ログインしているユーザー情報の更新
  * */
 const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { currentUserId: string }) => {
@@ -222,4 +178,4 @@ const usersRegisteredAsFavorites: QueryResolvers['usersRegisteredAsFavorites'] =
   }
 };
 
-export { findUserById, findUserByUserId, createUser, updateUser, usersRegisteredAsFavorites };
+export { findUserById, findUserByUserId, updateUser, usersRegisteredAsFavorites };
