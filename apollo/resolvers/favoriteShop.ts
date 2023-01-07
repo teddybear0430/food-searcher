@@ -39,7 +39,10 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (
       .insert({ uuid: id, name, address, genre, url, lunch, card, created_at: now, updated_at: now });
 
     if (error) {
-      throw new Error('お気に入りの追加時にエラーが発生しました');
+      return {
+        success: false,
+        message: 'お気に入りの追加時にエラーが発生しました',
+      };
     }
 
     return {
@@ -81,7 +84,10 @@ export const deleteFavoriteShop: MutationResolvers['deleteFavoriteShop'] = async
     const { error } = await supabase.from('favorite_shops').delete().eq('uuid', args.id).eq('name', name);
 
     if (error) {
-      throw new Error('お気に入りの削除時にエラーが発生しました');
+      return {
+        success: false,
+        message: 'お気に入りの削除時にエラーが発生しました',
+      };
     }
 
     return {
