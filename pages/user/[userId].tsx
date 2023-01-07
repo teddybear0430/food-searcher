@@ -54,24 +54,24 @@ const UserPage: NextPage<Props> = ({ userId }) => {
               プロフィールを編集する
             </Link>
           )}
+          <div className="mt-4">
+            <h2 className="text-xl mb-2">お気に入り: {data && data.findUserByUserId?.favoriteShops.length}件</h2>
+            {data && (
+              <ul>
+                {data.findUserByUserId?.favoriteShops.map((item) => (
+                  <ShopItem
+                    key={item.name}
+                    item={item}
+                    favoriteShops={data.findUserByUserId?.favoriteShops || []}
+                    isLoggedin={Boolean(isLoggedin)}
+                    userId={userId}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
         </>
       )}
-      <div className="mt-4">
-        <h2 className="text-xl mb-2">お気に入り: {data && data.findUserByUserId?.favoriteShops.length}件</h2>
-        {data && (
-          <ul>
-            {data.findUserByUserId?.favoriteShops.map((item) => (
-              <ShopItem
-                key={item.name}
-                item={item}
-                favoriteShops={data.findUserByUserId?.favoriteShops || []}
-                isLoggedin={Boolean(isLoggedin)}
-                userId={userId}
-              />
-            ))}
-          </ul>
-        )}
-      </div>
       <Toaster position="top-right" />
     </>
   );
