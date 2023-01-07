@@ -10,10 +10,9 @@ export const useGeolocated = () => {
 
   useEffect(() => {
     if ('geolocation' in navigator) {
-      setAvailable(true);
-
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          setAvailable(true);
           const { latitude, longitude } = position.coords;
 
           setPosition({
