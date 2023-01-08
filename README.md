@@ -13,3 +13,30 @@
 - Apollo Server
 - vercel
 - supabase
+
+## ローカル環境立ち上げ
+
+```
+supabase start
+```
+
+## ローカル環境停止
+
+```
+supabase stop
+```
+
+## DBのdump
+
+password: postgres
+
+> 参考: https://github.com/supabase/supabase/discussions/6056
+
+```
+/usr/local/opt/libpq/bin/pg_dump -h localhost -p 54322 -d postgres -U postgres \
+           --table='auth.users' \
+           --table='users' \
+           --table='favorite_shops' \
+           --data-only \
+           --inserts > supabase/seed.sql
+```
