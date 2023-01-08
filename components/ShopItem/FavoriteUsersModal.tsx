@@ -53,12 +53,12 @@ const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
                     お気に入りに登録したユーザー
                   </Dialog.Description>
                   {error && <p className="text-red-600 font-bold">お気に入りユーザーの登録に失敗しました</p>}
-                  {data?.usersRegisteredAsFavorites && (
-                    <>
-                      {data.usersRegisteredAsFavorites.length == 0 ? (
-                        <p>お気に入りに登録しているユーザーはいません</p>
-                      ) : (
-                        <div className="h-52 overflow-y-scroll">
+                  <div className="h-full min-h-[24px] max-h-28 overflow-y-scroll">
+                    {data?.usersRegisteredAsFavorites && (
+                      <>
+                        {data.usersRegisteredAsFavorites.length == 0 ? (
+                          <p>お気に入りに登録しているユーザーはいません</p>
+                        ) : (
                           <ul>
                             {data?.usersRegisteredAsFavorites.map((item) => (
                               <li key={item?.userId}>
@@ -68,10 +68,10 @@ const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
                               </li>
                             ))}
                           </ul>
-                        </div>
-                      )}
-                    </>
-                  )}
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
