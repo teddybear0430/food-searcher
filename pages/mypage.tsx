@@ -112,11 +112,13 @@ const MyPage: NextPage = () => {
             })}
           />
           {errors.profile && <p className="text-red-600">200文字以内で入力してください</p>}
-          <div className="mt-6 flex">
-            <Button theme="primary" type="submit" disabled={isUserIdEmpty || !isValid}>
-              {data?.findUserById === null ? '新規作成' : '保存'}
-            </Button>
-          </div>
+          {data && (
+            <div className="mt-6 flex">
+              <Button theme="primary" type="submit" disabled={isUserIdEmpty || !isValid}>
+                {data?.findUserById === null ? '新規作成' : '保存'}
+              </Button>
+            </div>
+          )}
         </form>
       </>
       <Toaster position="top-right" />
