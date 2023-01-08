@@ -1,11 +1,11 @@
-import { FC } from 'react';
-import Link from 'next/link';
+import { FC, useState } from 'react';
 import { AiOutlineHeart, AiFillHeart, AiFillTwitterCircle } from 'react-icons/ai';
 import { BsFillBookmarksFill } from 'react-icons/bs';
 import { FaLine } from 'react-icons/fa';
-import { Item } from '~/types/shop';
 import { useShopItem } from '~/hooks/useShopItem';
+import { Item } from '~/types/shop';
 import Label from './Label';
+import FavoriteUsersModal from './FavoriteUsersModal';
 
 type Props = {
   item: Item;
@@ -15,6 +15,8 @@ type Props = {
 };
 
 const ShopItem: FC<Props> = ({ item, favoriteShops = [], isLoggedin, userId }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   // 表示されている店舗がお気に入りに追加されているかチェックする
   const isFavoritedCheck = () => {
     if (favoriteShops.length === 0) return false;
@@ -59,9 +61,9 @@ const ShopItem: FC<Props> = ({ item, favoriteShops = [], isLoggedin, userId }) =
             )}
           </>
         )}
-        <Link href={`/favorites/${name}`} className="text-xl text-gray-300 hover:text-gray-500">
+        <button className="text-xl text-gray-300 hover:text-gray-500" onClick={() => setIsOpen(true)}>
           <BsFillBookmarksFill />
-        </Link>
+        </button>
       </div>
       <div className="lg:w-full w-10/12">
         <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline">
@@ -101,6 +103,7 @@ const ShopItem: FC<Props> = ({ item, favoriteShops = [], isLoggedin, userId }) =
           <FaLine />
         </a>
       </div>
+      <FavoriteUsersModal isOpen={isOpen} setIsOpen={setIsOpen} name={item.name} />
     </li>
   );
 };
