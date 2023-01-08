@@ -1,16 +1,17 @@
 import { gql } from 'graphql-request';
-import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import useSWR from 'swr';
 import Seo from '~/components/Seo';
 import { Query, QueryUsersRegisteredAsFavoritesArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
 
-type Props = {
-  name: string;
-};
+const UserPage: NextPage = () => {
+  const router = useRouter();
+  // パスパラメータから値を取得
+  const name = router.query.name as string;
 
-const UserPage: NextPage<Props> = ({ name }) => {
   const query = gql`
     query ($name: String!) {
       usersRegisteredAsFavorites(name: $name) {
@@ -48,16 +49,6 @@ const UserPage: NextPage<Props> = ({ name }) => {
       )}
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const { name } = context.query;
-
-  return {
-    props: {
-      name,
-    },
-  };
 };
 
 export default UserPage;

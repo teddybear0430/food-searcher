@@ -14,7 +14,7 @@ import { supabase } from '~/utils/supabaseClient';
 const MyPage: NextPage = () => {
   const [auth] = useAuthStore();
   const { isLoggedin, uuid } = auth;
-  const { data, isLoading, updateUserData, createUserData } = useMyPage(uuid);
+  const { data, updateUserData, createUserData } = useMyPage(uuid);
 
   // フォームのバリデーション
   const {
@@ -63,63 +63,62 @@ const MyPage: NextPage = () => {
     <>
       <Seo title="マイページ" />
       <h1 className="text-2xl">マイページ</h1>
-      {!isLoading && isLoggedin && (
-        <>
-          {data && (
-            <Link href={`/user/${data.findUserById?.userId}`} className="text-blue-700 hover:underline">
-              {data.findUserById?.name ? data.findUserById?.name : data.findUserById?.userId}
-            </Link>
-          )}
-          {email && <p>メールアドレス: {email}</p>}
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              inputLabel="ユーザーId"
-              id="userId"
-              name="userId"
-              type="text"
-              required
-              register={register('userId', {
-                required: true,
-              })}
-            />
-            {errors.userId && <p className="text-red-600">ユーザーIDが入力されていません</p>}
-            <TextField
-              inputLabel="ユーザー名"
-              id="name"
-              name="name"
-              type="text"
-              register={register('name', {
-                maxLength: 30,
-              })}
-            />
-            {errors.name && <p className="text-red-600">30文字以内で入力してください</p>}
-            <TextField
-              inputLabel="居住地"
-              id="location"
-              name="location"
-              type="text"
-              register={register('location', {
-                maxLength: 30,
-              })}
-            />
-            {errors.location && <p className="text-red-600">30文字以内で入力してください</p>}
-            <TextAreaField
-              inputLabel="プロフィール"
-              id="profile"
-              name="profile"
-              register={register('profile', {
-                maxLength: 200,
-              })}
-            />
-            {errors.profile && <p className="text-red-600">200文字以内で入力してください</p>}
-            <div className="mt-6 flex">
-              <Button theme="primary" type="submit" disabled={isUserIdEmpty || !isValid}>
-                {data?.findUserById === null ? '新規作成' : '保存'}
-              </Button>
-            </div>
-          </form>
-        </>
-      )}
+      <>
+        <p>
+          ユーザーページ:{' '}
+          <Link href={`/user/${data?.findUserById?.userId}`} className="text-blue-700 hover:underline">
+            {data?.findUserById?.name ? data?.findUserById?.name : data?.findUserById?.userId}
+          </Link>
+        </p>
+        <p>メールアドレス: {email}</p>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            inputLabel="ユーザーId"
+            id="userId"
+            name="userId"
+            type="text"
+            required
+            register={register('userId', {
+              required: true,
+            })}
+          />
+          {errors.userId && <p className="text-red-600">ユーザーIDが入力されていません</p>}
+          <TextField
+            inputLabel="ユーザー名"
+            id="name"
+            name="name"
+            type="text"
+            register={register('name', {
+              maxLength: 30,
+            })}
+          />
+          {errors.name && <p className="text-red-600">30文字以内で入力してください</p>}
+          <TextField
+            inputLabel="居住地"
+            id="location"
+            name="location"
+            type="text"
+            register={register('location', {
+              maxLength: 30,
+            })}
+          />
+          {errors.location && <p className="text-red-600">30文字以内で入力してください</p>}
+          <TextAreaField
+            inputLabel="プロフィール"
+            id="profile"
+            name="profile"
+            register={register('profile', {
+              maxLength: 200,
+            })}
+          />
+          {errors.profile && <p className="text-red-600">200文字以内で入力してください</p>}
+          <div className="mt-6 flex">
+            <Button theme="primary" type="submit" disabled={isUserIdEmpty || !isValid}>
+              {data?.findUserById === null ? '新規作成' : '保存'}
+            </Button>
+          </div>
+        </form>
+      </>
       <Toaster position="top-right" />
     </>
   );
