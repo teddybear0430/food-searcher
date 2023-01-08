@@ -1,4 +1,5 @@
 import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { typeDefs } from '~/apollo/typeDefs';
 import { resolvers } from '~/apollo/resolvers/index';
@@ -7,6 +8,8 @@ import { supabase } from '~/utils/supabaseClient';
 const server = new ApolloServer({
   resolvers,
   typeDefs,
+  // デフォルトのランディングページを無効にする
+  plugins: [ApolloServerPluginLandingPageDisabled()],
 });
 
 export default startServerAndCreateNextHandler(server, {
