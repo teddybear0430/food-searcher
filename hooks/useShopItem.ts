@@ -2,7 +2,6 @@ import { gql } from 'graphql-request';
 import { useState } from 'react';
 import { useSWRConfig } from 'swr';
 import toast from 'react-hot-toast';
-import { useAuthStore } from '~/stores/useAuthStore';
 import { MutateResponse, MutationAddFavoriteShopArgs, MutationDeleteFavoriteShopArgs } from '~/types/type';
 import { Item } from '~/types/shop';
 import { client } from '~/utils/graphqlClient';

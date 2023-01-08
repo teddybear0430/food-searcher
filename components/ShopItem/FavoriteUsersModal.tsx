@@ -1,11 +1,8 @@
-import { gql } from 'graphql-request';
 import Link from 'next/link';
 import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, Dispatch, SetStateAction } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import useSWR from 'swr';
-import { Query, QueryUsersRegisteredAsFavoritesArgs } from '~/types/type';
-import { client } from '~/utils/graphqlClient';
+import { useFavoriteUsers } from '~/hooks/useFavoriteUsers';
 
 type Props = {
   isOpen: boolean;
@@ -15,19 +12,7 @@ type Props = {
 
 const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
   const closeModal = () => setIsOpen(false);
-
-  const query = gql`
-    query ($name: String!) {
-      usersRegisteredAsFavorites(name: $name) {
-        userId
-        name
-      }
-    }
-  `;
-  const params: QueryUsersRegisteredAsFavoritesArgs = {
-    name,
-  };
-  const { data, error } = useSWR<Query>(['favorites', name], () => client().request(query, params));
+  const { data, error } = useFavoriteUsers(name, isOpen);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
