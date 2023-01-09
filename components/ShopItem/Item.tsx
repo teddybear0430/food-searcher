@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import { AiOutlineHeart, AiFillHeart, AiFillTwitterCircle } from 'react-icons/ai';
 import { BsFillBookmarksFill } from 'react-icons/bs';
 import { FaLine } from 'react-icons/fa';
-import { useShopItem } from '~/hooks/useShopItem';
+import { useShopItem } from '~/hooks/api/useShopItem';
 import { Item } from '~/types/shop';
 import Label from './Label';
 import FavoriteUsersModal from './FavoriteUsersModal';

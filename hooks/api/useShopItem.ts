@@ -54,11 +54,9 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
 
-    if (res.addFavoriteShop.success) {
-      // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
-      if (userId) mutate(['user', userId]);
-    } else {
-      toast.error('お気に入りの削除に失敗しました');
+    // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
+    if (res.addFavoriteShop.success && userId) {
+      mutate(['user', userId]);
     }
   };
 
@@ -88,10 +86,8 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
 
-    if (res.deleteFavoriteShop.success) {
-      if (userId) mutate(['user', userId]);
-    } else {
-      toast.error('お気に入りの削除に失敗しました');
+    if (res.deleteFavoriteShop.success && userId) {
+      mutate(['user', userId]);
     }
   };
 
