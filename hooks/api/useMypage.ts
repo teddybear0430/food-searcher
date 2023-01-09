@@ -21,19 +21,21 @@ export const useMyPage = (id: string) => {
 
   const createUserData = async (newData: FormData) => {
     const mutation = gql`
-      mutation createUser($id: ID!, $userId: String!, $name: String, $location: String, $profile: String) {
-        createUser(id: $id, userId: $userId, name: $name, location: $location, profile: $profile) {
+      mutation createUser($input: userInput!) {
+        createUser(input: $input) {
           success
           message
         }
       }
     `;
     const params: MutationCreateUserArgs = {
-      id,
-      userId: newData.userId,
-      name: newData.name,
-      location: newData.location,
-      profile: newData.profile,
+      input: {
+        id,
+        userId: newData.userId,
+        name: newData.name,
+        location: newData.location,
+        profile: newData.profile,
+      },
     };
 
     // JWT tokenの取得
@@ -52,19 +54,21 @@ export const useMyPage = (id: string) => {
   // 更新処理
   const updateUserData = async (newData: FormData) => {
     const mutation = gql`
-      mutation updateUser($id: ID!, $userId: String, $name: String, $location: String, $profile: String) {
-        updateUser(id: $id, userId: $userId, name: $name, location: $location, profile: $profile) {
+      mutation updateUser($input: userInput!) {
+        updateUser(input: $input) {
           success
           message
         }
       }
     `;
     const params: MutationUpdateUserArgs = {
-      id,
-      userId: newData.userId,
-      name: newData.name,
-      location: newData.location,
-      profile: newData.profile,
+      input: {
+        id,
+        userId: newData.userId,
+        name: newData.name,
+        location: newData.location,
+        profile: newData.profile,
+      },
     };
 
     // JWT tokenの取得

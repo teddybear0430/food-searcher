@@ -15,16 +15,8 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     setIsFavorite(true);
 
     const mutation = gql`
-      mutation (
-        $id: ID!
-        $address: String!
-        $genre: String!
-        $name: String!
-        $url: String!
-        $card: String!
-        $lunch: String!
-      ) {
-        addFavoriteShop(id: $id, address: $address, genre: $genre, name: $name, url: $url, card: $card, lunch: $lunch) {
+      mutation ($input: shopInput!) {
+        addFavoriteShop(input: $input) {
           success
           message
         }
@@ -41,13 +33,15 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     }
 
     const params: MutationAddFavoriteShopArgs = {
-      id: data.user?.id || '',
-      name,
-      address,
-      genre,
-      url,
-      lunch,
-      card,
+      input: {
+        id: data.user?.id || '',
+        name,
+        address,
+        genre,
+        url,
+        lunch,
+        card,
+      },
     };
 
     // JWT tokenの取得

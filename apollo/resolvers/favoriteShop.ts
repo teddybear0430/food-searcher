@@ -11,8 +11,10 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (
   args,
   context: { currentUserId: string }
 ) => {
+  const { input } = args;
+
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid || authenticatedUuid !== args.id) {
+  if (!authenticatedUuid || authenticatedUuid !== input.id) {
     return {
       success: false,
       message: 'お気に入りの追加は許可されていません',
@@ -31,8 +33,8 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (
 
   try {
     // バリデーションチェックの実施
-    schema.parse(args);
-    const { id, name, address, genre, url, lunch, card } = args;
+    schema.parse(input);
+    const { id, name, address, genre, url, lunch, card } = input;
 
     // 重複データのチェック
     // 既にお気に入りに追加されている場合はお気に入りに追加できないようにする

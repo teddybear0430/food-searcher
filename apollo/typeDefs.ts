@@ -57,23 +57,33 @@ export const typeDefs = gql`
     message: String!
   }
 
+  input userInput {
+    id: ID!
+    userId: String!
+    name: String
+    location: String
+    profile: String
+  }
+
+  input shopInput {
+    id: ID!
+    address: String!
+    genre: String!
+    name: String!
+    url: String!
+    card: String!
+    lunch: String!
+  }
+
   type Mutation {
     # ユーザー情報の新規作成
-    createUser(id: ID!, userId: String!, name: String, location: String, profile: String): MutateResponse!
+    createUser(input: userInput!): MutateResponse!
 
     # ユーザー情報の更新
-    updateUser(id: ID!, userId: String, name: String, location: String, profile: String): MutateResponse!
+    updateUser(input: userInput!): MutateResponse!
 
     # 検索した店舗をお気に入りに登録する
-    addFavoriteShop(
-      id: ID!
-      address: String!
-      genre: String!
-      name: String!
-      url: String!
-      card: String!
-      lunch: String!
-    ): MutateResponse!
+    addFavoriteShop(input: shopInput!): MutateResponse!
 
     # お気に入りに登録した店舗を削除する
     deleteFavoriteShop(id: ID!, name: String!): MutateResponse!

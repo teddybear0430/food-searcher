@@ -102,9 +102,11 @@ const findUserByUserId: QueryResolvers['findUserByUserId'] = async (_, { userId 
  * ユーザー情報の新規作成
  * */
 const createUser: MutationResolvers['createUser'] = async (_, args, context: { currentUserId: string }) => {
+  const { input } = args;
+
   // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid || authenticatedUuid !== args.id) {
+  if (!authenticatedUuid || authenticatedUuid !== input.id) {
     return {
       success: false,
       message: 'ユーザー情報の作成は許可されていません',
@@ -122,8 +124,8 @@ const createUser: MutationResolvers['createUser'] = async (_, args, context: { c
 
   try {
     // バリデーションチェックの実施
-    schema.parse(args);
-    const { id, userId, name, location, profile } = args;
+    schema.parse(input);
+    const { id, userId, name, location, profile } = input;
 
     // ユーザー情報の新規作成
     const { error } = await supabase
@@ -151,9 +153,11 @@ const createUser: MutationResolvers['createUser'] = async (_, args, context: { c
  * ログインしているユーザー情報の更新
  * */
 const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { currentUserId: string }) => {
+  const { input } = args;
+
   // uuidの存在チェックとmutationから渡ってきたuuidが一致しているかのチェック
   const authenticatedUuid = context.currentUserId;
-  if (!authenticatedUuid || authenticatedUuid !== args.id) {
+  if (!authenticatedUuid || authenticatedUuid !== input.id) {
     return {
       success: false,
       message: 'ユーザー情報の更新は許可されていません',
@@ -171,8 +175,8 @@ const updateUser: MutationResolvers['updateUser'] = async (_, args, context: { c
 
   try {
     // バリデーションチェックの実施
-    schema.parse(args);
-    const { id, userId, name, location, profile } = args;
+    schema.parse(input);
+    const { id, userId, name, location, profile } = input;
 
     // 更新対象のユーザー情報の取得と存在チェック
     const { data: findUserData, error: findUserError } = await supabase.from('users').select().eq('id', id).single();
