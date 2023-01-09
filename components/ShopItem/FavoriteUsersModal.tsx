@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, Dispatch, SetStateAction } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import { useFavoriteUsers } from '~/hooks/useFavoriteUsers';
+import { useFavoriteUsers } from '~/hooks/api/useFavoriteUsers';
 
 type Props = {
   isOpen: boolean;

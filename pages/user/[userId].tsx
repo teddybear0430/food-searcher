@@ -1,13 +1,10 @@
-import { gql } from 'graphql-request';
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import useSWR from 'swr';
 import { Toaster } from 'react-hot-toast';
 import ShopItem from '~/components/ShopItem/Item';
 import Seo from '~/components/Seo';
+import { useUserPage } from '~/hooks/api/useUserPage';
 import { useAuthStore } from '~/stores/useAuthStore';
-import { Query } from '~/types/type';
-import { client } from '~/utils/graphqlClient';
 import { supabase } from '~/utils/supabaseClient';
 
 type Props = {
@@ -15,33 +12,21 @@ type Props = {
 };
 
 const UserPage: NextPage<Props> = ({ userId }) => {
-  const query = gql`
-    query ($userId: String!) {
-      findUserByUserId(userId: $userId) {
-        name
-        location
-        profile
-
-        favoriteShops(userId: $userId) {
-          name
-          address
-          genre
-          url
-          card
-          lunch
-        }
-      }
-    }
-  `;
-
-  const { data } = useSWR<Query>(['user', userId], () => client().request(query, { userId }));
-
   const [auth] = useAuthStore();
   const { isLoggedin } = auth;
+
+  const { data, error } = useUserPage(userId);
 
   return (
     <>
       <Seo title={userId} />
+      {error && !data && (
+        <p className="font-bold text-red-600">
+          ユーザー情報の取得に失敗しました。
+          <br />
+          ブラウザをリロードして再度お試しください。
+        </p>
+      )}
       {data?.findUserByUserId && (
         <>
           <h1 className="text-2xl">
