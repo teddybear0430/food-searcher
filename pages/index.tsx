@@ -4,6 +4,8 @@ import { ChangeEvent, useState } from 'react';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextField from '~/components/TextField';
+import { useAuthenticationUser } from '~/hooks/api/useAuthenticationUser';
+import { useAuthStore } from '~/stores/useAuthStore';
 
 const Home: NextPage = () => {
   const [keyword, setKeyword] = useState('');
@@ -20,6 +22,10 @@ const Home: NextPage = () => {
       ...(keyword ? { query: { keyword } } : {}),
     });
   };
+
+  const [auth] = useAuthStore();
+  const { uuid } = auth;
+  useAuthenticationUser(uuid);
 
   return (
     <>

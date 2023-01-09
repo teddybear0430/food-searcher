@@ -7,6 +7,7 @@ import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextAreaField from '~/components/TextAreaField';
 import TextField from '~/components/TextField';
+import { useAuthenticationUser } from '~/hooks/api/useAuthenticationUser';
 import { FormData, useMyPage } from '~/hooks/api/useMypage';
 import { supabase } from '~/utils/supabaseClient';
 
@@ -28,12 +29,13 @@ const MyPage: NextPage<Props> = ({ id, email }) => {
     criteriaMode: 'all',
   });
 
-  // ユーザーIDのチェック
+  // ユーザーidのチェック
   // watchを使わないと、初回レンダリング時にボタンの非活性が解除されなかった
   const watchUserIdValue = watch(['userId']);
   const isUserIdEmpty = watchUserIdValue.every((e) => e === '');
 
-  const { createUserData, updateUserData, data } = useMyPage(id);
+  const { createUserData, updateUserData } = useMyPage(id);
+  const { data, error } = useAuthenticationUser(id);
 
   useEffect(() => {
     reset({
@@ -57,6 +59,13 @@ const MyPage: NextPage<Props> = ({ id, email }) => {
       <Seo title="マイページ" />
       <h1 className="text-2xl">マイページ</h1>
       <>
+        {error && !data && (
+          <p className="font-bold text-red-600">
+            ユーザー情報の取得に失敗しました。
+            <br />
+            ブラウザをリロードして再度お試しください。
+          </p>
+        )}
         <p>
           ユーザーページ:{' '}
           <Link href={`/user/${data?.findUserById?.userId}`} className="text-blue-700 hover:underline">
