@@ -13,7 +13,9 @@ type Props = {
 
 const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
   const closeModal = () => setIsOpen(false);
-  const { data, error, isLoading } = useFavoriteUsers(name, isOpen);
+
+  // isValidating: フェッチの開始時, 再試行の開始時にtrueになる
+  const { data, error, isLoading, isValidating } = useFavoriteUsers(name, isOpen);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -54,7 +56,7 @@ const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
                     お気に入りに登録したユーザー
                   </Dialog.Description>
                   <div className="h-full min-h-[24px] max-h-28 overflow-y-scroll">
-                    {isLoading ? (
+                    {isLoading || isValidating ? (
                       <Loading />
                     ) : (
                       <>
