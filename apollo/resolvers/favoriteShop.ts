@@ -34,21 +34,42 @@ export const addFavoriteShop: MutationResolvers['addFavoriteShop'] = async (
     schema.parse(args);
     const { id, name, address, genre, url, lunch, card } = args;
 
-    const { error } = await supabase
+    // 重複データのチェック
+    // 既にお気に入りに追加されている場合はお気に入りに追加できないようにする
+    const { data: findFavoriteData, error: findFavoriteDataError } = await supabase
       .from('favorite_shops')
-      .insert({ uuid: id, name, address, genre, url, lunch, card, created_at: now, updated_at: now });
+      .select('name')
+      .match({ uuid: id, name });
 
-    if (error) {
+    if (findFavoriteDataError) {
       return {
         success: false,
         message: 'お気に入りの追加時にエラーが発生しました',
       };
     }
 
-    return {
-      success: true,
-      message: 'お気に入りの追加に成功しました',
-    };
+    if (findFavoriteData.length === 0) {
+      const { error } = await supabase
+        .from('favorite_shops')
+        .insert({ uuid: id, name, address, genre, url, lunch, card, created_at: now, updated_at: now });
+
+      if (error) {
+        return {
+          success: false,
+          message: 'お気に入りの追加時にエラーが発生しました',
+        };
+      }
+
+      return {
+        success: true,
+        message: 'お気に入りの追加に成功しました',
+      };
+    } else {
+      return {
+        success: false,
+        message: '既にお気に入りに追加されています',
+      };
+    }
   } catch (er) {
     console.error(er);
     throw er;

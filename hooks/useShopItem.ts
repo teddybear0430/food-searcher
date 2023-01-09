@@ -12,6 +12,8 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
   const { mutate } = useSWRConfig();
 
   const addFavoriteShop = async (item: Item) => {
+    setIsFavorite(true);
+
     const mutation = gql`
       mutation (
         $id: ID!
@@ -53,7 +55,6 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const res = await client(session?.access_token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
 
     if (res.addFavoriteShop.success) {
-      setIsFavorite(true);
       // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
       if (userId) mutate(['user', userId]);
     } else {
@@ -62,6 +63,8 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
   };
 
   const deleteFavoriteShop = async (item: Item) => {
+    setIsFavorite(false);
+
     const mutation = gql`
       mutation ($id: ID!, $name: String!) {
         deleteFavoriteShop(id: $id, name: $name) {
@@ -86,7 +89,6 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const res = await client(session?.access_token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
 
     if (res.deleteFavoriteShop.success) {
-      setIsFavorite(false);
       if (userId) mutate(['user', userId]);
     } else {
       toast.error('お気に入りの削除に失敗しました');
