@@ -1,55 +1,24 @@
-import { gql } from 'graphql-request';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
 import { Toaster } from 'react-hot-toast';
 import Loading from '~/components/Loading';
 import Seo from '~/components/Seo';
 import ShopItem from '~/components/ShopItem/Item';
 import { useAuthStore } from '~/stores/useAuthStore';
+import { useFoods } from '~/hooks/api/useFoods';
 import { useGeolocated } from '~/hooks/useGeolocated';
-import { Query, QueryFoodsArgs, QueryFindUserByIdArgs } from '~/types/type';
-import { client } from '~/utils/graphqlClient';
 
 const Search: NextPage = () => {
   const router = useRouter();
-  const keyword = router.query.keyword;
+  const keyword = (router.query.keyword as string) || '';
 
   const [auth] = useAuthStore();
   const { isLoggedin, uuid } = auth;
 
-  const query = gql`
-    query getFoods($lat: Float!, $lng: Float!, $keyword: String, $id: ID!) {
-      foods(lat: $lat, lng: $lng, keyword: $keyword) {
-        name
-        address
-        genre
-        url
-        card
-        lunch
-      }
-
-      findUserById(id: $id) {
-        favoriteShops(id: $id) {
-          name
-        }
-      }
-    }
-  `;
-
   const { position } = useGeolocated();
   const { latitude: lat, longitude: lng } = position;
-  const params: QueryFoodsArgs & QueryFindUserByIdArgs = {
-    keyword: (keyword as string) || '',
-    // 経度と緯度の初期値にnullを設定している都合上、nullかどうかのエラーハンドリングが必要になる
-    // このコンポーネントはgeolocationAPIが有効になっていないと絶対にレンダリングされることはないので、nullの場合は0を代入する
-    lat: lat === null ? 0 : lat,
-    lng: lng === null ? 0 : lng,
-    id: uuid,
-  };
-  const { isLoading, data, error } = useSWR<Query>(['foods', lat, lng, keyword || ''], () =>
-    client().request(query, params)
-  );
+
+  const { isLoading, data, error } = useFoods(keyword, lat, lng, uuid);
 
   return (
     <>
