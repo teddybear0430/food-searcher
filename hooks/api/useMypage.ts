@@ -15,20 +15,7 @@ export type FormData = {
 /**
  *  マイページの処理をまとめたカスタムフック
  */
-export const useMyPage = (uuid: string) => {
-  // ユーザー情報の取得
-  const query = gql`
-    query ($id: ID!) {
-      findUserById(id: $id) {
-        name
-        userId
-        location
-        profile
-      }
-    }
-  `;
-  const { isLoading, data } = useSWR<Query>(['mypage', uuid], () => client().request(query, { id: uuid }));
-
+export const useMyPage = (id: string) => {
   //新規作成処理
   const { mutate } = useSWRConfig();
 
@@ -42,7 +29,7 @@ export const useMyPage = (uuid: string) => {
       }
     `;
     const params: MutationCreateUserArgs = {
-      id: uuid,
+      id,
       userId: newData.userId,
       name: newData.name,
       location: newData.location,
@@ -53,7 +40,7 @@ export const useMyPage = (uuid: string) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ createUser: MutateResponse }>(mutation, params);
 
-    mutate(['mypage', uuid]);
+    mutate(['mypage', id]);
 
     if (res.createUser.success) {
       toast.success('プロフィールの新規作成に成功しました');
@@ -73,7 +60,7 @@ export const useMyPage = (uuid: string) => {
       }
     `;
     const params: MutationUpdateUserArgs = {
-      id: uuid,
+      id,
       userId: newData.userId,
       name: newData.name,
       location: newData.location,
@@ -84,7 +71,7 @@ export const useMyPage = (uuid: string) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ updateUser: MutateResponse }>(mutation, params);
 
-    mutate(['mypage', uuid]);
+    mutate(['mypage', id]);
 
     if (res.updateUser.success) {
       toast.success('プロフィールの編集に成功しました');
@@ -93,10 +80,23 @@ export const useMyPage = (uuid: string) => {
     }
   };
 
+  // ユーザー情報の取得
+  const query = gql`
+    query ($id: ID!) {
+      findUserById(id: $id) {
+        name
+        userId
+        location
+        profile
+      }
+    }
+  `;
+  const { data, error } = useSWR<Query>(['mypage', id], () => client().request(query, { id }));
+
   return {
-    isLoading,
-    data,
     createUserData,
     updateUserData,
+    data,
+    error,
   };
 };

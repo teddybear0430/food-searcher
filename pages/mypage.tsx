@@ -1,21 +1,21 @@
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Toaster } from 'react-hot-toast';
 import Button from '~/components/Button';
 import Seo from '~/components/Seo';
 import TextAreaField from '~/components/TextAreaField';
 import TextField from '~/components/TextField';
-import { FormData, useMyPage } from '~/hooks/useMypage';
-import { useAuthStore } from '~/stores/useAuthStore';
+import { FormData, useMyPage } from '~/hooks/api/useMypage';
 import { supabase } from '~/utils/supabaseClient';
 
-const MyPage: NextPage = () => {
-  const [auth] = useAuthStore();
-  const { isLoggedin, uuid } = auth;
-  const { data, updateUserData, createUserData } = useMyPage(uuid);
+type Props = {
+  id: string;
+  email: string;
+};
 
+const MyPage: NextPage<Props> = ({ id, email }) => {
   // フォームのバリデーション
   const {
     handleSubmit,
@@ -33,16 +33,9 @@ const MyPage: NextPage = () => {
   const watchUserIdValue = watch(['userId']);
   const isUserIdEmpty = watchUserIdValue.every((e) => e === '');
 
-  // メールアドレスの取得
-  const [email, setEmail] = useState('');
-  const getEmail = async () => {
-    const { data } = await supabase.auth.getUser();
-    setEmail(data.user?.email || '');
-  };
+  const { createUserData, updateUserData, data } = useMyPage(id);
 
   useEffect(() => {
-    getEmail();
-
     reset({
       userId: data?.findUserById?.userId,
       name: data?.findUserById?.name || '',
@@ -141,7 +134,7 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
     };
   }
 
-  const { error } = await supabase.auth.setSession({
+  const { data, error } = await supabase.auth.setSession({
     access_token: accessToken,
     refresh_token: refreshToken,
   });
@@ -156,7 +149,10 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
   }
 
   return {
-    props: {},
+    props: {
+      id: data.user?.id,
+      email: data.user?.email,
+    },
   };
 };
 
