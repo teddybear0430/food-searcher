@@ -19,12 +19,13 @@ export const useFavoriteUsers = (name: string, shouldFetch: boolean) => {
 
   // モーダルが閉じている時はデータの取得を行わないようにする
   // https://swr.vercel.app/docs/conditional-fetching
-  const { data, error } = useSWR<Query>(shouldFetch ? ['favorites', name] : null, () =>
+  const { data, error, isLoading } = useSWR<Query>(shouldFetch ? ['favorites', name] : null, () =>
     client().request(query, params)
   );
 
   return {
     data,
     error,
+    isLoading,
   };
 };

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, Dispatch, SetStateAction } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
+import Loading from '~/components/Loading';
 import { useFavoriteUsers } from '~/hooks/api/useFavoriteUsers';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 
 const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
   const closeModal = () => setIsOpen(false);
-  const { data, error } = useFavoriteUsers(name, isOpen);
+  const { data, error, isLoading } = useFavoriteUsers(name, isOpen);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -52,22 +53,28 @@ const FavoriteUsersModal: FC<Props> = ({ isOpen, setIsOpen, name }) => {
                   <Dialog.Description as="h3" className="font-bold mb-2">
                     お気に入りに登録したユーザー
                   </Dialog.Description>
-                  {error && <p className="text-red-600 font-bold">お気に入りユーザーの登録に失敗しました</p>}
                   <div className="h-full min-h-[24px] max-h-28 overflow-y-scroll">
-                    {data?.usersRegisteredAsFavorites && (
+                    {isLoading ? (
+                      <Loading />
+                    ) : (
                       <>
-                        {data.usersRegisteredAsFavorites.length == 0 ? (
-                          <p>お気に入りに登録しているユーザーはいません</p>
-                        ) : (
-                          <ul>
-                            {data?.usersRegisteredAsFavorites.map((item) => (
-                              <li key={item?.userId}>
-                                <Link href={`/user/${item?.userId}`} className="text-blue-700 hover:underline">
-                                  {item?.name ? item.name : item?.userId}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
+                        {error && <p className="text-red-600 font-bold">お気に入りユーザーの登録に失敗しました</p>}
+                        {data?.usersRegisteredAsFavorites && (
+                          <>
+                            {data.usersRegisteredAsFavorites.length == 0 ? (
+                              <p>お気に入りに登録しているユーザーはいません</p>
+                            ) : (
+                              <ul>
+                                {data?.usersRegisteredAsFavorites.map((item) => (
+                                  <li key={item?.userId}>
+                                    <Link href={`/user/${item?.userId}`} className="text-blue-700 hover:underline">
+                                      {item?.name ? item.name : item?.userId}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
                         )}
                       </>
                     )}
