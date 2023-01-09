@@ -48,9 +48,12 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ addFavoriteShop: MutateResponse }>(mutation, params);
 
-    // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
-    if (res.addFavoriteShop.success && userId) {
-      mutate(['user', userId]);
+    // 処理が正常に実行されたらキャッシュの更新を行う
+    if (res.addFavoriteShop.success) {
+      mutate(['favorites', item.name]);
+
+      // ユーザーページでお気に入りが更新された時はデータのリフェッチを行う
+      if (userId) mutate(['user', userId]);
     }
   };
 
@@ -80,8 +83,10 @@ export const useShopItem = (isFavoritedCheck: boolean, userId?: string) => {
     const { session } = (await supabase.auth.getSession()).data;
     const res = await client(session?.access_token).request<{ deleteFavoriteShop: MutateResponse }>(mutation, params);
 
-    if (res.deleteFavoriteShop.success && userId) {
-      mutate(['user', userId]);
+    if (res.deleteFavoriteShop.success) {
+      mutate(['favorites', item.name]);
+
+      if (userId) mutate(['user', userId]);
     }
   };
 
