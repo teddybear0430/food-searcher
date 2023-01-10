@@ -1,10 +1,10 @@
 import { addFavoriteShop, deleteFavoriteShop } from './favoriteShop';
-import { foods } from './foods';
+import { shops } from './shops';
 import { findUserById, findUserByUserId, createUser, updateUser, usersRegisteredAsFavorites } from './user';
 
 export const resolvers = {
   Query: {
-    foods,
+    shops,
     findUserById,
     findUserByUserId,
     usersRegisteredAsFavorites,

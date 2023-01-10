@@ -5,7 +5,7 @@ import Loading from '~/components/Loading';
 import Seo from '~/components/Seo';
 import ShopItem from '~/components/ShopItem/Item';
 import { useAuthStore } from '~/stores/useAuthStore';
-import { useFoods } from '~/hooks/api/useFoods';
+import { useShops } from '~/hooks/api/useShops';
 import { useGeolocated } from '~/hooks/useGeolocated';
 
 const Search: NextPage = () => {
@@ -18,7 +18,7 @@ const Search: NextPage = () => {
   const { position } = useGeolocated();
   const { latitude: lat, longitude: lng } = position;
 
-  const { isLoading, data, error } = useFoods(keyword, lat, lng, uuid);
+  const { isLoading, data, error } = useShops(keyword, lat, lng, uuid);
 
   return (
     <>
@@ -39,11 +39,11 @@ const Search: NextPage = () => {
                   ブラウザをリロードして再度お試しください。
                 </p>
               )}
-              {data?.foods && (
+              {data?.shops && (
                 <>
-                  {data.foods.length !== 0 && (
+                  {data.shops.length !== 0 && (
                     <ul>
-                      {data.foods.map((item) => (
+                      {data.shops.map((item) => (
                         <ShopItem
                           key={item.name}
                           item={item}
@@ -53,7 +53,7 @@ const Search: NextPage = () => {
                       ))}
                     </ul>
                   )}
-                  {!isLoading && !error && data.foods.length === 0 && (
+                  {!isLoading && !error && data.shops.length === 0 && (
                     <p className="text-bold">近くのお店が見つかりませんでした。</p>
                   )}
                 </>

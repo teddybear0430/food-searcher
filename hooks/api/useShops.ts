@@ -1,12 +1,12 @@
 import { gql } from 'graphql-request';
 import useSWR from 'swr';
-import { Query, QueryFoodsArgs, QueryFindUserByIdArgs } from '~/types/type';
+import { Query, QueryShopsArgs, QueryFindUserByIdArgs } from '~/types/type';
 import { client } from '~/utils/graphqlClient';
 
-export const useFoods = (keyword: string, lat: number | null, lng: number | null, uuid?: string) => {
+export const useShops = (keyword: string, lat: number | null, lng: number | null, uuid?: string) => {
   const query = gql`
-    query getFoods($lat: Float!, $lng: Float!, $keyword: String, $id: ID!) {
-      foods(lat: $lat, lng: $lng, keyword: $keyword) {
+    query ($lat: Float!, $lng: Float!, $keyword: String, $id: ID!) {
+      shops(lat: $lat, lng: $lng, keyword: $keyword) {
         name
         address
         genre
@@ -23,7 +23,7 @@ export const useFoods = (keyword: string, lat: number | null, lng: number | null
     }
   `;
 
-  const params: QueryFoodsArgs & QueryFindUserByIdArgs = {
+  const params: QueryShopsArgs & QueryFindUserByIdArgs = {
     keyword: keyword || '',
     // 経度と緯度の初期値にnullを設定しているため、nullかどうかのエラーハンドリングが必要になる
     lat: lat === null ? 0 : lat,
@@ -33,7 +33,7 @@ export const useFoods = (keyword: string, lat: number | null, lng: number | null
 
   // 経度と緯度が設定されていない時はAPIリクエストを実行しない
   const { isLoading, data, error } = useSWR<Query>(
-    [lat, lng].every((e) => e === null) ? null : ['foods', lat, lng, keyword || ''],
+    [lat, lng].every((e) => e === null) ? null : ['shops', lat, lng, keyword || ''],
     () => client().request(query, params)
   );
 

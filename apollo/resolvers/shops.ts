@@ -1,7 +1,7 @@
-import { FoodApiResult } from '~/types/api/foods';
+import { ApiResult } from '~/types/api/shops';
 import { QueryResolvers } from '~/types/type';
 
-export const foods: QueryResolvers['foods'] = async (_, { keyword, lat, lng }) => {
+export const shops: QueryResolvers['shops'] = async (_, { keyword, lat, lng }) => {
   const API_TOKEN = process.env.API_TOKEN;
 
   let API_BASE_URL = `https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=${API_TOKEN}&format=json&lat=${lat}&lng=${lng}&count=50`;
@@ -12,7 +12,7 @@ export const foods: QueryResolvers['foods'] = async (_, { keyword, lat, lng }) =
   try {
     const res = await fetch(API_BASE_URL);
 
-    const json = (await res.json()) as FoodApiResult;
+    const json = (await res.json()) as ApiResult;
     const { shop, error } = json.results;
 
     // エラーの際でも、HTTPレスポンスステータスは常に "200 OK" が返却される仕様

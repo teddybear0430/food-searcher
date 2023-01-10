@@ -1,7 +1,7 @@
 import { gql } from 'graphql-tag';
 
 export const typeDefs = gql`
-  type Food {
+  type Shop {
     uuid: String
     address: String!
     genre: String!
@@ -24,7 +24,7 @@ export const typeDefs = gql`
     userId: String!
     location: String
     profile: String
-    favoriteShops(id: ID!): [Food!]!
+    favoriteShops(id: ID!): [Shop!]!
   }
   type UserByUserIdResult implements User {
     id: ID!
@@ -32,7 +32,7 @@ export const typeDefs = gql`
     userId: String!
     location: String
     profile: String
-    favoriteShops(userId: String!): [Food!]!
+    favoriteShops(userId: String!): [Shop!]!
   }
 
   type UserIdAndUserName {
@@ -42,7 +42,7 @@ export const typeDefs = gql`
 
   type Query {
     # 位置情報を元に近所の飲食店を取得
-    foods(lat: Float!, lng: Float!, keyword: String): [Food!]!
+    shops(lat: Float!, lng: Float!, keyword: String): [Shop!]!
 
     # ユーザー情報の取得
     findUserById(id: ID!): UserByIdResult

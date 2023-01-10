@@ -14,17 +14,6 @@ export type Scalars = {
   Float: number;
 };
 
-export type Food = {
-  __typename?: 'Food';
-  address: Scalars['String'];
-  card: Scalars['String'];
-  genre: Scalars['String'];
-  lunch: Scalars['String'];
-  name: Scalars['String'];
-  url: Scalars['String'];
-  uuid?: Maybe<Scalars['String']>;
-};
-
 export type MutateResponse = {
   __typename?: 'MutateResponse';
   message: Scalars['String'];
@@ -64,7 +53,7 @@ export type Query = {
   __typename?: 'Query';
   findUserById?: Maybe<UserByIdResult>;
   findUserByUserId?: Maybe<UserByUserIdResult>;
-  foods: Array<Food>;
+  shops: Array<Shop>;
   usersRegisteredAsFavorites: Array<Maybe<UserIdAndUserName>>;
 };
 
@@ -79,7 +68,7 @@ export type QueryFindUserByUserIdArgs = {
 };
 
 
-export type QueryFoodsArgs = {
+export type QueryShopsArgs = {
   keyword?: InputMaybe<Scalars['String']>;
   lat: Scalars['Float'];
   lng: Scalars['Float'];
@@ -88,6 +77,17 @@ export type QueryFoodsArgs = {
 
 export type QueryUsersRegisteredAsFavoritesArgs = {
   name: Scalars['String'];
+};
+
+export type Shop = {
+  __typename?: 'Shop';
+  address: Scalars['String'];
+  card: Scalars['String'];
+  genre: Scalars['String'];
+  lunch: Scalars['String'];
+  name: Scalars['String'];
+  url: Scalars['String'];
+  uuid?: Maybe<Scalars['String']>;
 };
 
 export type User = {
@@ -100,7 +100,7 @@ export type User = {
 
 export type UserByIdResult = User & {
   __typename?: 'UserByIdResult';
-  favoriteShops: Array<Food>;
+  favoriteShops: Array<Shop>;
   id: Scalars['ID'];
   location?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -115,7 +115,7 @@ export type UserByIdResultFavoriteShopsArgs = {
 
 export type UserByUserIdResult = User & {
   __typename?: 'UserByUserIdResult';
-  favoriteShops: Array<Food>;
+  favoriteShops: Array<Shop>;
   id: Scalars['ID'];
   location?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -223,11 +223,11 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
-  Food: ResolverTypeWrapper<Food>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   MutateResponse: ResolverTypeWrapper<MutateResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  Shop: ResolverTypeWrapper<Shop>;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolversTypes['UserByIdResult'] | ResolversTypes['UserByUserIdResult'];
   UserByIdResult: ResolverTypeWrapper<UserByIdResult>;
@@ -241,11 +241,11 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   Float: Scalars['Float'];
-  Food: Food;
   ID: Scalars['ID'];
   MutateResponse: MutateResponse;
   Mutation: {};
   Query: {};
+  Shop: Shop;
   String: Scalars['String'];
   User: ResolversParentTypes['UserByIdResult'] | ResolversParentTypes['UserByUserIdResult'];
   UserByIdResult: UserByIdResult;
@@ -253,17 +253,6 @@ export type ResolversParentTypes = {
   UserIdAndUserName: UserIdAndUserName;
   shopInput: ShopInput;
   userInput: UserInput;
-};
-
-export type FoodResolvers<ContextType = any, ParentType extends ResolversParentTypes['Food'] = ResolversParentTypes['Food']> = {
-  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  card?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  genre?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  lunch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  uuid?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutateResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MutateResponse'] = ResolversParentTypes['MutateResponse']> = {
@@ -282,8 +271,19 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   findUserById?: Resolver<Maybe<ResolversTypes['UserByIdResult']>, ParentType, ContextType, RequireFields<QueryFindUserByIdArgs, 'id'>>;
   findUserByUserId?: Resolver<Maybe<ResolversTypes['UserByUserIdResult']>, ParentType, ContextType, RequireFields<QueryFindUserByUserIdArgs, 'userId'>>;
-  foods?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<QueryFoodsArgs, 'lat' | 'lng'>>;
+  shops?: Resolver<Array<ResolversTypes['Shop']>, ParentType, ContextType, RequireFields<QueryShopsArgs, 'lat' | 'lng'>>;
   usersRegisteredAsFavorites?: Resolver<Array<Maybe<ResolversTypes['UserIdAndUserName']>>, ParentType, ContextType, RequireFields<QueryUsersRegisteredAsFavoritesArgs, 'name'>>;
+};
+
+export type ShopResolvers<ContextType = any, ParentType extends ResolversParentTypes['Shop'] = ResolversParentTypes['Shop']> = {
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  card?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  genre?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lunch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uuid?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -296,7 +296,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type UserByIdResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserByIdResult'] = ResolversParentTypes['UserByIdResult']> = {
-  favoriteShops?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<UserByIdResultFavoriteShopsArgs, 'id'>>;
+  favoriteShops?: Resolver<Array<ResolversTypes['Shop']>, ParentType, ContextType, RequireFields<UserByIdResultFavoriteShopsArgs, 'id'>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -306,7 +306,7 @@ export type UserByIdResultResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type UserByUserIdResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserByUserIdResult'] = ResolversParentTypes['UserByUserIdResult']> = {
-  favoriteShops?: Resolver<Array<ResolversTypes['Food']>, ParentType, ContextType, RequireFields<UserByUserIdResultFavoriteShopsArgs, 'userId'>>;
+  favoriteShops?: Resolver<Array<ResolversTypes['Shop']>, ParentType, ContextType, RequireFields<UserByUserIdResultFavoriteShopsArgs, 'userId'>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -322,10 +322,10 @@ export type UserIdAndUserNameResolvers<ContextType = any, ParentType extends Res
 };
 
 export type Resolvers<ContextType = any> = {
-  Food?: FoodResolvers<ContextType>;
   MutateResponse?: MutateResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Shop?: ShopResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserByIdResult?: UserByIdResultResolvers<ContextType>;
   UserByUserIdResult?: UserByUserIdResultResolvers<ContextType>;

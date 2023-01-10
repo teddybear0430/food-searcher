@@ -1,6 +1,6 @@
 // ホットペッパーのグルメサーチAPIの実行結果
 // docs: https://webservice.recruit.co.jp/doc/hotpepper/reference.html
-export type FoodApiResult = {
+export type ApiResult = {
   results: {
     api_version: string;
     results_available?: number;
